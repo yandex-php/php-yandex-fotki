@@ -37,6 +37,14 @@ class Photo extends \Yandex\Fotki\ApiAbstract
      */
     const SIZE_XL = 'XL';
     /**
+     * Сторона ограничивающего квадрата 1024px
+     */
+    const SIZE_XXL = 'XXL';
+    /**
+     * Сторона ограничивающего квадрата 1280px
+     */
+    const SIZE_XXXL = 'XXXL';
+    /**
      * Оригинальный размер фотографии
      */
     const SIZE_ORIGINAL = 'orig';
