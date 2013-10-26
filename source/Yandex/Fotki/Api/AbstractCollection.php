@@ -36,6 +36,10 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
      */
     protected $_apiUrlNextPage;
     /**
+     * @var string
+     */
+    protected $_dateUpdated;
+    /**
      * @var string Порядок элементов отображения выдачи
      * @see \Yandex\Fotki\Dict\Order
      */
@@ -102,6 +106,30 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
             }
         }
         return $this;
+    }
+
+    /**
+     * @param string|null $format В каком формате возвращать время (null = timestamp)
+     * @return int|string
+     */
+    public function getDateUpdated($format = null)
+    {
+        $result = null;
+        if (!empty($this->_dateUpdated)) {
+            $result = strtotime($this->_dateUpdated);
+            if (!empty($format)) {
+                $result = date($format, $result);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getList()
+    {
+        return $this->_data;
     }
 
     /**

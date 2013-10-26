@@ -84,4 +84,14 @@ class Api
         $albumsCollection = new \Yandex\Fotki\Api\AlbumsCollection($this->_transport, $apiUrl);
         return $albumsCollection;
     }
+
+    /**
+     * @return Api\PhotosCollection
+     */
+    public function getPhotosCollection()
+    {
+        $apiUrl = $this->_serviceDocument->getUrlPhotosCollection();
+        $photosCollection = new \Yandex\Fotki\Api\PhotosCollection($this->_transport, $apiUrl);
+        return $photosCollection;
+    }
 }

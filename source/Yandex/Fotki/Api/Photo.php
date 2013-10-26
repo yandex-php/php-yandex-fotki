@@ -393,7 +393,11 @@ class Photo extends \Yandex\Fotki\ApiAbstract
      */
     public function getAlbumId()
     {
-        $result = substr($this->_albumId, strrpos($this->_albumId, ':') + 1);
+        $result = $this->_albumId;
+        $pos = strrpos($this->_albumId, ':');
+        if ($pos !== false) {
+            $result = substr($this->_albumId, strrpos($this->_albumId, ':') + 1);
+        }
         return $result;
     }
 
@@ -408,11 +412,16 @@ class Photo extends \Yandex\Fotki\ApiAbstract
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getAlbumAtomId()
     {
-        return $this->_albumId;
+        $result = null;
+        $pos = strrpos($this->_albumId, ':');
+        if ($pos !== false) {
+            $result = $this->_albumId;
+        }
+        return $result;
     }
 
     /**
@@ -540,11 +549,11 @@ class Photo extends \Yandex\Fotki\ApiAbstract
         if (isset($entry['id'])) {
             $this->_id = (string)$entry['id'];
         }
-//        if (isset($entry['links']['album'])) {
-//            if (preg_match('/\/(\d+)\//', $entry['links']['album'], $matches)) {
-//                $this->_albumId = $matches[1];
-//            }
-//        }
+        if (isset($entry['links']['album'])) {
+            if (preg_match('/\/(\d+)\//', $entry['links']['album'], $matches)) {
+                $this->_albumId = $matches[1];
+            }
+        }
         if (isset($entry['authors'][0]['name'])) {
             $this->_author = (string)$entry['authors'][0]['name'];
         }
