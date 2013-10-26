@@ -39,7 +39,7 @@ class Api
         $token = null;
         $password = null;
         // пароль на Яндексе не может быть более 20 символов
-        if (mb_strlen($str) <= 20) {
+        if (strlen($str) <= 20) {
             $password = $str;
         } else {
             $token = $str;
