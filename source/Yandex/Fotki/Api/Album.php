@@ -199,7 +199,7 @@ class Album extends \Yandex\Fotki\Api\AbstractCollection
     /**
      * @return string
      */
-    public function getFullId()
+    public function getAtomId()
     {
         return $this->_id;
     }

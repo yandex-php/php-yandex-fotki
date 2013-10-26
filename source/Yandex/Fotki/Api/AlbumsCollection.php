@@ -26,9 +26,14 @@ class AlbumsCollection extends \Yandex\Fotki\Api\AbstractCollection
         } catch (\Yandex\Fotki\Exception\Api $ex) {
             throw new \Yandex\Fotki\Exception\Api\AlbumsCollection($ex->getMessage(), $ex->getCode(), $ex);
         }
+        $this->_apiUrlNextPage = null;
+        if (isset($data['links']['next'])) {
+            $this->_apiUrlNextPage = (string)$data['links']['next'];
+        }
         foreach ($data['entries'] as $entry) {
             $album = new \Yandex\Fotki\Api\Album($this->_transport, $entry['links']['self']);
-            $this->_albums[] = $album->initWithData($entry);
+            $album->initWithData($entry);
+            $this->_albums[$album->getId()] = $album;
         }
         return $this;
     }

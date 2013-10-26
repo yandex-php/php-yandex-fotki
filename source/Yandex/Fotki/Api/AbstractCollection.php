@@ -70,8 +70,18 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
 
     public function next()
     {
+        $this->clearFilters();
+        if (empty($this->_apiUrlNextPage)) {
+            throw new \Yandex\Fotki\Exception\Api\EndOfCollection("Not found next page of collection");
+        }
+        echo $this->_apiUrlNextPage . "\n";
         $this->__construct($this->_transport, $this->_apiUrlNextPage);
-        return $this->load();
+        try {
+            $this->load();
+        } catch (\Yandex\Fotki\Exception\Api\AlbumsCollection $ex) {
+            throw new \Yandex\Fotki\Exception\Api\EndOfCollection($ex->getMessage(), $ex->getCode(), $ex);
+        }
+        return $this;
     }
 
     /**
@@ -111,6 +121,17 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
     public function setFilter(\Closure $func = null)
     {
         $this->_filter = $func;
+        return $this;
+    }
+
+    /**
+     * @return self
+     */
+    public function clearFilters()
+    {
+        $this->_filter = null;
+        $this->_order = null;
+        $this->_limit = null;
         return $this;
     }
 
