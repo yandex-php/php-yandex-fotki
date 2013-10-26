@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-0": {
-            "\\Yandex\\Fotki": "source/"
+            "Yandex\\Fotki": "source/"
         }
     }
 }
