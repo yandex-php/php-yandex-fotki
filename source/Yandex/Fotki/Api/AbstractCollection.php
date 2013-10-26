@@ -68,18 +68,42 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
         $this->_transport = $transport;
     }
 
-    public function next()
+    /**
+     * Загрузка следующей страницы выдачи
+     * @return $this
+     * @throws \Yandex\Fotki\Exception\Api\EndOfCollection
+     */
+    public function loadNext()
     {
-        $this->clearFilters();
+        $this->resetFilters();
         if (empty($this->_apiUrlNextPage)) {
             throw new \Yandex\Fotki\Exception\Api\EndOfCollection("Not found next page of collection");
         }
-        echo $this->_apiUrlNextPage . "\n";
         $this->__construct($this->_transport, $this->_apiUrlNextPage);
         try {
             $this->load();
         } catch (\Yandex\Fotki\Exception\Api\AlbumsCollection $ex) {
             throw new \Yandex\Fotki\Exception\Api\EndOfCollection($ex->getMessage(), $ex->getCode(), $ex);
+        }
+        return $this;
+    }
+
+    /**
+     * Загрузить всю коллекцию
+     * @param null|int $limitQueries Ограничиваем кол-во запросов к api на получение коллекции
+     * @return self
+     */
+    public function loadAll($limitQueries = null)
+    {
+        $limitQueries = is_null($limitQueries) ? 20 : $limitQueries;
+        $albums[] = $this
+            ->load();
+        for ($i = 0; $i < $limitQueries; $i++) {
+            try {
+                $this->loadNext();
+            } catch (\Yandex\Fotki\Exception\Api\EndOfCollection $ex) {
+                break;
+            }
         }
         return $this;
     }
@@ -125,9 +149,10 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
     }
 
     /**
+     * Сбрасываем фильтры
      * @return self
      */
-    public function clearFilters()
+    public function resetFilters()
     {
         $this->_filter = null;
         $this->_order = null;
