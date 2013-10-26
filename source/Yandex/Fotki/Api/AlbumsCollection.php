@@ -11,9 +11,9 @@ namespace Yandex\Fotki\Api;
 class AlbumsCollection extends \Yandex\Fotki\Api\AbstractCollection
 {
     /**
-     * @var \Yandex\Fotki\Api\Album[] Список загруженных альбомов в коллекции
+     * @var string
      */
-    protected $_albums = array();
+    protected $_dateUpdated;
 
     /**
      * @return self
@@ -33,9 +33,25 @@ class AlbumsCollection extends \Yandex\Fotki\Api\AbstractCollection
         foreach ($data['entries'] as $entry) {
             $album = new \Yandex\Fotki\Api\Album($this->_transport, $entry['links']['self']);
             $album->initWithData($entry);
-            $this->_albums[$album->getId()] = $album;
+            $this->_data[$album->getId()] = $album;
         }
         return $this;
+    }
+
+    /**
+     * @param string|null $format В каком формате возвращать время (null = timestamp)
+     * @return int|string
+     */
+    public function getDateUpdated($format = null)
+    {
+        $result = null;
+        if (!empty($this->_dateUpdated)) {
+            $result = strtotime($this->_dateUpdated);
+            if (!empty($format)) {
+                $result = date($format, $result);
+            }
+        }
+        return $result;
     }
 
     /**
@@ -43,12 +59,6 @@ class AlbumsCollection extends \Yandex\Fotki\Api\AbstractCollection
      */
     public function getAlbums()
     {
-        if (!empty($this->_filter)) {
-            $func = $this->_filter;
-            $result = $func($this->_albums);
-        } else {
-            $result = $this->_albums;
-        }
-        return $result;
+        return $this->_data;
     }
 }

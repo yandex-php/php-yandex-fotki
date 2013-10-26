@@ -49,10 +49,6 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
      */
     protected $_limit;
     /**
-     * @var \callable Фильтр
-     */
-    protected $_filter;
-    /**
      * @var array Данные
      */
     protected $_data = array();
@@ -139,22 +135,11 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
     }
 
     /**
-     * @param \callable $func
-     * @return self
-     */
-    public function setFilter(\Closure $func = null)
-    {
-        $this->_filter = $func;
-        return $this;
-    }
-
-    /**
      * Сбрасываем фильтры
      * @return self
      */
     public function resetFilters()
     {
-        $this->_filter = null;
         $this->_order = null;
         $this->_limit = null;
         return $this;
