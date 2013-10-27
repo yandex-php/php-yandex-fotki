@@ -181,6 +181,9 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
     protected function _getApiUrlWithParams($url)
     {
         $parts = parse_url($url);
+        if (!isset($parts['query'])) {
+            $parts['query'] = '';
+        }
         if (!empty($this->_order)) {
             $parts['path'] .= $this->_order;
             if (!empty($this->_offset)) {
@@ -190,9 +193,6 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
         }
         $limit = (int)$this->_limit;
         if ($limit > 0) {
-            if (!isset($parts['query'])) {
-                $parts['query'] = '';
-            }
             if (!empty($parts['query'])) {
                 $parts['query'] .= '&';
             }
