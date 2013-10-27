@@ -28,9 +28,6 @@ abstract class ApiAbstract implements \Serializable
             $property->setAccessible(true);
             $key = $property->getName();
             $value = $property->getValue($this);
-            if (is_object($value)) {
-                $value = null;
-            }
             $data[$key] = $value;
         }
         return serialize($data);
