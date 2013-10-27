@@ -129,7 +129,12 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
      */
     public function getList()
     {
-        return $this->_data;
+        $result = $this->_data;
+        $limit = (int)$this->_limit;
+        if ($limit > 0) {
+            $result = array_slice($result, 0, $limit);
+        }
+        return $result;
     }
 
     /**
@@ -185,6 +190,9 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
         }
         $limit = (int)$this->_limit;
         if ($limit > 0) {
+            if (!isset($parts['query'])) {
+                $parts['query'] = '';
+            }
             if (!empty($parts['query'])) {
                 $parts['query'] .= '&';
             }
