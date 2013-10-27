@@ -49,7 +49,7 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
      */
     protected $_offset;
     /**
-     * @var int Кол-во элементов на странице выдачи (не более 100)
+     * @var int|null Кол-во элементов на странице выдачи (не более 100)
      */
     protected $_limit;
     /**
@@ -138,7 +138,7 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
      */
     public function setLimit($limit)
     {
-        $this->_limit = (int)$limit;
+        $this->_limit = is_null($limit) ? null : (int)$limit;
         return $this;
     }
 
@@ -175,17 +175,22 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
 
     protected function _getApiUrlWithParams($url)
     {
-        $result = $url;
+        $parts = parse_url($url);
         if (!empty($this->_order)) {
-            $result .= $this->_order;
+            $parts['path'] .= $this->_order;
             if (!empty($this->_offset)) {
-                $result .= (';' . $this->_offset);
+                $parts['path'] .= (';' . $this->_offset);
             }
-            $result .= '/';
+            $parts['path'] .= '/';
         }
-        if ($this->_limit > 0) {
-            $result .= '?limit=' . $this->_limit;
+        $limit = (int)$this->_limit;
+        if ($limit > 0) {
+            if (!empty($parts['query'])) {
+                $parts['query'] .= '&';
+            }
+            $parts['query'] .= 'limit=' . $limit;
         }
+        $result = sprintf("%s://%s%s?%s", $parts['scheme'], $parts['host'], $parts['path'], $parts['query']);
         return $result;
     }
 }

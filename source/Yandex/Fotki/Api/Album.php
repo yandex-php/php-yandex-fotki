@@ -5,6 +5,9 @@ namespace Yandex\Fotki\Api;
  * Class AlbumsCollection
  * @package Yandex\Fotki\Api
  * @see http://api.yandex.ru/fotki/doc/operations-ref/album-get.xml
+ * @method \Yandex\Fotki\Api\Album setOrder(\string $order)
+ * @method \Yandex\Fotki\Api\Album setLimit(\int $limit)
+ * @method \Yandex\Fotki\Api\Photo[] getList()
  */
 class Album extends \Yandex\Fotki\Api\AbstractCollection
 {
@@ -284,38 +287,8 @@ class Album extends \Yandex\Fotki\Api\AbstractCollection
             throw new \Yandex\Fotki\Exception\Api\Album($ex->getMessage(), $ex->getCode(), $ex);
         }
         $this->initWithData($data);
+        $this->_loadPhotos();
         return $this;
-    }
-
-    /**
-     * @param null|int $count
-     * @throws \Yandex\Fotki\Exception\Api\Album
-     * @return \Yandex\Fotki\Api\Photo[]
-     */
-    public function getPhotos($count = null)
-    {
-        $result = array();
-        if (!empty($this->_apiUrlPhotos)) {
-            if (!empty($count)) {
-                $this->setLimit($count);
-            }
-            $url = $this->_getApiUrlWithParams($this->_apiUrlPhotos);
-            try {
-                $data = $this->_getData($this->_transport, $url);
-            } catch (\Yandex\Fotki\Exception\Api $ex) {
-                throw new \Yandex\Fotki\Exception\Api\Album($ex->getMessage(), $ex->getCode(), $ex);
-            }
-            if (isset($data['entries'])) {
-                foreach ($data['entries'] as $photoData) {
-                    $photo = new \Yandex\Fotki\Api\Photo($this->_transport);
-                    $photo->initWithData($photoData)
-                        ->setApiUrlAlbum($this->_apiUrl);
-                    $this->_data[$photo->getId()] = $photo;
-                }
-            }
-            $result = $this->_data;
-        }
-        return $result;
     }
 
     /**
@@ -377,6 +350,36 @@ class Album extends \Yandex\Fotki\Api\AbstractCollection
         }
         if (isset($entry['links']['cover'])) {
             $this->_apiUrlCover = (string)$entry['links']['cover'];
+        }
+        return $this;
+    }
+
+    /**
+     * Загружаем список фотографий
+     * @throws \Yandex\Fotki\Exception\Api\Album
+     * @return self
+     */
+    protected function _loadPhotos()
+    {
+        if (!empty($this->_apiUrlPhotos)) {
+            $url = $this->_getApiUrlWithParams($this->_apiUrlPhotos);
+            try {
+                $data = $this->_getData($this->_transport, $url);
+            } catch (\Yandex\Fotki\Exception\Api $ex) {
+                throw new \Yandex\Fotki\Exception\Api\Album($ex->getMessage(), $ex->getCode(), $ex);
+            }
+            $this->_apiUrlNextPage = null;
+            if (isset($data['links']['next'])) {
+                $this->_apiUrlNextPage = (string)$data['links']['next'];
+            }
+            if (isset($data['entries'])) {
+                foreach ($data['entries'] as $photoData) {
+                    $photo = new \Yandex\Fotki\Api\Photo($this->_transport);
+                    $photo->initWithData($photoData)
+                        ->setApiUrlAlbum($this->_apiUrl);
+                    $this->_data[$photo->getId()] = $photo;
+                }
+            }
         }
         return $this;
     }

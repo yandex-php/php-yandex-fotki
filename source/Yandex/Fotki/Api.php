@@ -8,11 +8,11 @@ class Api
      */
     protected $_transport;
     /**
-     * @var Api\Auth
+     * @var \Yandex\Fotki\Api\Auth
      */
     protected $_auth;
     /**
-     * @var Api\ServiceDocument
+     * @var \Yandex\Fotki\Api\ServiceDocument
      */
     protected $_serviceDocument;
     /**
@@ -60,7 +60,7 @@ class Api
     }
 
     /**
-     * @return null|Api\Auth
+     * @return null|\Yandex\Fotki\Api\Auth
      */
     public function getAuth()
     {
@@ -68,7 +68,7 @@ class Api
     }
 
     /**
-     * @return Api\ServiceDocument
+     * @return \Yandex\Fotki\Api\ServiceDocument
      */
     public function getServiceDocument()
     {
@@ -76,7 +76,7 @@ class Api
     }
 
     /**
-     * @return Api\AlbumsCollection
+     * @return \Yandex\Fotki\Api\AlbumsCollection
      */
     public function getAlbumsCollection()
     {
@@ -86,12 +86,23 @@ class Api
     }
 
     /**
-     * @return Api\PhotosCollection
+     * @return \Yandex\Fotki\Api\PhotosCollection
      */
     public function getPhotosCollection()
     {
         $apiUrl = $this->_serviceDocument->getUrlPhotosCollection();
         $photosCollection = new \Yandex\Fotki\Api\PhotosCollection($this->_transport, $apiUrl);
         return $photosCollection;
+    }
+
+    /**
+     * @param string|int $id
+     * @return \Yandex\Fotki\Api\Album
+     */
+    public function getAlbum($id)
+    {
+        $apiUrl = sprintf("http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", $this->_login, trim($id));
+        $album = new \Yandex\Fotki\Api\Album($this->_transport, $apiUrl);
+        return $album;
     }
 }
