@@ -92,7 +92,11 @@ class Auth extends \Yandex\Fotki\ApiAbstract
         if ($error) {
             $text = strip_tags($tmp['data']);
             $msg = sprintf("Command %s error (%s). %s", get_called_class(), $apiUrl, trim($text));
-            throw new \Yandex\Fotki\Exception\Api\Auth(sprintf("Error get RSA key! %s", $msg), $tmp['code']);
+            if ($tmp['code'] == 502) {
+                throw new \Yandex\Fotki\Exception\Api\ServerError(sprintf("Error get RSA key! %s", $msg), $tmp['code']);
+            } else {
+                throw new \Yandex\Fotki\Exception\Api\Auth(sprintf("Error get RSA key! %s", $msg), $tmp['code']);
+            }
         }
         $response = new \SimpleXMLElement($result);
         $this->_requestId = (string)$response->request_id;
@@ -112,7 +116,11 @@ class Auth extends \Yandex\Fotki\ApiAbstract
         if ($error) {
             $text = strip_tags($tmp['data']);
             $msg = sprintf("Command %s error (%s). %s", get_called_class(), $apiUrl, trim($text));
-            throw new \Yandex\Fotki\Exception\Api\Auth(sprintf("Error get token! %s", $msg), $tmp['code']);
+            if ($tmp['code'] == 502) {
+                throw new \Yandex\Fotki\Exception\Api\ServerError(sprintf("Error get token! %s", $msg), $tmp['code']);
+            } else {
+                throw new \Yandex\Fotki\Exception\Api\Auth(sprintf("Error get token! %s", $msg), $tmp['code']);
+            }
         }
         $response = new \SimpleXMLElement($result);
         $this->_token = (string)$response->token;
