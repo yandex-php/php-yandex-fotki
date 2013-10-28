@@ -8,7 +8,7 @@ class Api
      */
     protected $_transport;
     /**
-     * @var \Yandex\Fotki\Api\Auth
+     * @var \Yandex\Fotki\Api\AbstractAuth
      */
     protected $_auth;
     /**
@@ -44,7 +44,7 @@ class Api
         } else {
             $token = $str;
         }
-        $this->_auth = new \Yandex\Fotki\Api\Auth($this->_transport, $this->_login, $password, $token);
+        $this->_auth = new \Yandex\Fotki\Api\FimpAuth($this->_transport, $this->_login, $password, $token);
         $this->_transport->setToken($this->_auth->getToken());
         return $this;
     }
@@ -60,7 +60,7 @@ class Api
     }
 
     /**
-     * @return null|\Yandex\Fotki\Api\Auth
+     * @return null|\Yandex\Fotki\Api\AbstractAuth
      */
     public function getAuth()
     {

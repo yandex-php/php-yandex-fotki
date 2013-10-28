@@ -2,20 +2,12 @@
 namespace Yandex\Fotki\Api;
 
 /**
- * Class Auth
+ * Class FimpAuth
  * @package Yandex\Fotki\Api
  * @see http://api.yandex.ru/fotki/doc/concepts/fimptoken.xml
  */
-class Auth extends \Yandex\Fotki\ApiAbstract
+class FimpAuth extends \Yandex\Fotki\Api\AbstractAuth
 {
-    /**
-     * @var string
-     */
-    protected $_token;
-    /**
-     * @var string
-     */
-    protected $_login;
     /**
      * @var string
      */
@@ -35,7 +27,7 @@ class Auth extends \Yandex\Fotki\ApiAbstract
      * @param string|null $password
      * @param null $token
      * @throws \Yandex\Fotki\Exception\Api\Auth
-     * @return \Yandex\Fotki\Api\Auth
+     * @return \Yandex\Fotki\Api\FimpAuth
      */
     public function __construct(\Yandex\Fotki\Transport $transport, $login, $password, $token = null)
     {
@@ -51,22 +43,6 @@ class Auth extends \Yandex\Fotki\ApiAbstract
         } else {
             throw new \Yandex\Fotki\Exception\Api\Auth("Not specified password or token!");
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken()
-    {
-        return $this->_token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLogin()
-    {
-        return $this->_login;
     }
 
     /**

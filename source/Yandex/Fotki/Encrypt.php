@@ -1,6 +1,12 @@
 <?php
 namespace Yandex\Fotki;
 
+/**
+ * Class Encrypt
+ * @package Yandex\Fotki
+ * @see https://github.com/ostronom/YandexFotkiAPI/blob/master/Encryptor.php
+ * @author ostronom
+ */
 class Encrypt
 {
     public static function hex2dec($num)
