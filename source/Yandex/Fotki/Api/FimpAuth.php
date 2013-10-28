@@ -69,7 +69,7 @@ class FimpAuth extends \Yandex\Fotki\Api\AbstractAuth
             $text = strip_tags($tmp['data']);
             $msg = sprintf("Command %s error (%s). %s", get_called_class(), $apiUrl, trim($text));
             if ($tmp['code'] == 502) {
-                throw new \Yandex\Fotki\Exception\Api\ServerError(sprintf("Error get RSA key! %s", $msg), $tmp['code']);
+                throw new \Yandex\Fotki\Exception\ServerError(sprintf("Error get RSA key! %s", $msg), $tmp['code']);
             } else {
                 throw new \Yandex\Fotki\Exception\Api\Auth(sprintf("Error get RSA key! %s", $msg), $tmp['code']);
             }
@@ -93,7 +93,7 @@ class FimpAuth extends \Yandex\Fotki\Api\AbstractAuth
             $text = strip_tags($tmp['data']);
             $msg = sprintf("Command %s error (%s). %s", get_called_class(), $apiUrl, trim($text));
             if ($tmp['code'] == 502) {
-                throw new \Yandex\Fotki\Exception\Api\ServerError(sprintf("Error get token! %s", $msg), $tmp['code']);
+                throw new \Yandex\Fotki\Exception\ServerError(sprintf("Error get token! %s", $msg), $tmp['code']);
             } else {
                 throw new \Yandex\Fotki\Exception\Api\Auth(sprintf("Error get token! %s", $msg), $tmp['code']);
             }
