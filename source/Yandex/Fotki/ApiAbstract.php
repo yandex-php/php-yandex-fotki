@@ -1,6 +1,12 @@
 <?php
 namespace Yandex\Fotki;
 
+/**
+ * Class ApiAbstract
+ * @package Yandex\Fotki
+ * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
+ * @license The MIT License (MIT)
+ */
 abstract class ApiAbstract implements \Serializable
 {
     /**

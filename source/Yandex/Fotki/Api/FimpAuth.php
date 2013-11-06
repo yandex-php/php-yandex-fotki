@@ -4,6 +4,8 @@ namespace Yandex\Fotki\Api;
 /**
  * Class FimpAuth
  * @package Yandex\Fotki\Api
+ * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
+ * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/concepts/fimptoken.xml
  */
 class FimpAuth extends \Yandex\Fotki\Api\AbstractAuth

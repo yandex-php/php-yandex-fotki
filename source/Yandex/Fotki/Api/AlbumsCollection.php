@@ -4,6 +4,8 @@ namespace Yandex\Fotki\Api;
 /**
  * Class AlbumsCollection
  * @package Yandex\Fotki\Api
+ * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
+ * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/operations-ref/albums-collection-get.xml
  * @method \Yandex\Fotki\Api\AlbumsCollection setOrder(\string $order)
  * @method \Yandex\Fotki\Api\AlbumsCollection setLimit(\int $limit)

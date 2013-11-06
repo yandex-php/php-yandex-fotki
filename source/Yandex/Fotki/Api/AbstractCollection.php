@@ -1,6 +1,12 @@
 <?php
 namespace Yandex\Fotki\Api;
 
+/**
+ * Class AbstractCollection
+ * @package Yandex\Fotki\Api
+ * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
+ * @license The MIT License (MIT)
+ */
 abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
 {
     /**

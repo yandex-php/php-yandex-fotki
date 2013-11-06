@@ -4,6 +4,8 @@ namespace Yandex\Fotki\Api;
 /**
  * Class ServiceDocument
  * @package Yandex\Fotki\Api
+ * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
+ * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/operations-ref/service-document-get.xml
  */
 class ServiceDocument extends \Yandex\Fotki\ApiAbstract

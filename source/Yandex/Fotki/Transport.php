@@ -6,6 +6,8 @@ use \Yandex\Fotki\Exception;
 /**
  * Class Transport
  * @package Yandex\Fotki
+ * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
+ * @license The MIT License (MIT)
  * @method array get(\string $url, array $params = null)
  * @method array post(\string $url, array $params = null)
  * @method array put(\string $url, array $params = null)
