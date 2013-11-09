@@ -77,19 +77,19 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
     /**
      * Загрузка следующей страницы выдачи
      * @return $this
-     * @throws \Yandex\Fotki\Exception\Api\EndOfCollection
+     * @throws \Yandex\Fotki\Exception\Api\StopIteration
      */
     public function loadNext()
     {
         $this->resetFilters();
         if (empty($this->_apiUrlNextPage)) {
-            throw new \Yandex\Fotki\Exception\Api\EndOfCollection("Not found next page of collection");
+            throw new \Yandex\Fotki\Exception\Api\StopIteration("Not found next page of collection");
         }
         $this->__construct($this->_transport, $this->_apiUrlNextPage);
         try {
             $this->load();
         } catch (\Yandex\Fotki\Exception\Api\AlbumsCollection $ex) {
-            throw new \Yandex\Fotki\Exception\Api\EndOfCollection($ex->getMessage(), $ex->getCode(), $ex);
+            throw new \Yandex\Fotki\Exception\Api\StopIteration($ex->getMessage(), $ex->getCode(), $ex);
         }
         return $this;
     }
@@ -107,7 +107,7 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
         for ($i = 0; $i < $limitQueries; $i++) {
             try {
                 $this->loadNext();
-            } catch (\Yandex\Fotki\Exception\Api\EndOfCollection $ex) {
+            } catch (\Yandex\Fotki\Exception\Api\StopIteration $ex) {
                 break;
             }
         }

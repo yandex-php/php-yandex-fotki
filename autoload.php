@@ -23,7 +23,7 @@ function __dm_autoload_fotki( $name )
   'Yandex\\Fotki\\Exception\\Api\\Album' => 'source/Yandex/Fotki/Exception/Api/Album.php',
   'Yandex\\Fotki\\Exception\\Api\\AlbumsCollection' => 'source/Yandex/Fotki/Exception/Api/AlbumsCollection.php',
   'Yandex\\Fotki\\Exception\\Api\\Auth' => 'source/Yandex/Fotki/Exception/Api/Auth.php',
-  'Yandex\\Fotki\\Exception\\Api\\EndOfCollection' => 'source/Yandex/Fotki/Exception/Api/EndOfCollection.php',
+  'Yandex\\Fotki\\Exception\\Api\\StopIteration' => 'source/Yandex/Fotki/Exception/Api/StopIteration.php',
   'Yandex\\Fotki\\Exception\\Api\\Photo' => 'source/Yandex/Fotki/Exception/Api/Photo.php',
   'Yandex\\Fotki\\Exception\\Api\\PhotosCollection' => 'source/Yandex/Fotki/Exception/Api/PhotosCollection.php',
   'Yandex\\Fotki\\Exception\\Api\\ServiceDocument' => 'source/Yandex/Fotki/Exception/Api/ServiceDocument.php',

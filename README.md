@@ -37,7 +37,7 @@ $collection = $api->getAlbumsCollection()->loadAll();
 // Постраничная загрузка коллекции
 try {
     $collection = $api->getAlbumsCollection()->load()->next()->next()->next();
-} catch(\Yandex\Fotki\Exception\Api\EndOfCollection $ex) {
+} catch(\Yandex\Fotki\Exception\Api\StopIteration $ex) {
     // Окончание постраничной навигации
 }
 
