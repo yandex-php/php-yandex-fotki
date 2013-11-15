@@ -49,7 +49,7 @@ abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
      * @var string Порядок элементов отображения выдачи
      * @see \Yandex\Fotki\Dict\Order
      */
-    protected $_order = self::BY_LAST_UPDATE_ASC;
+    protected $_order;
     /**
      * @var string Смещении страницы в последовательности
      */

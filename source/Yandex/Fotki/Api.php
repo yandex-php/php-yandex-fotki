@@ -102,6 +102,27 @@ class Api
     }
 
     /**
+     * @return \Yandex\Fotki\Api\TagsCollection
+     */
+    public function getTagsCollection()
+    {
+        $apiUrl = $this->_serviceDocument->getUrlTagsCollection();
+        $tagsCollection = new \Yandex\Fotki\Api\TagsCollection($this->_transport, $apiUrl);
+        return $tagsCollection;
+    }
+
+    /**
+     * @param string $title
+     * @return \Yandex\Fotki\Api\Tag
+     */
+    public function getTag($title)
+    {
+        $apiUrl = sprintf("http://api-fotki.yandex.ru/api/users/%s/tag/%s/?format=json", $this->_login, trim($title));
+        $tag = new \Yandex\Fotki\Api\Tag($this->_transport, $apiUrl);
+        return $tag;
+    }
+
+    /**
      * @param string|int $id
      * @return \Yandex\Fotki\Api\Album
      */
