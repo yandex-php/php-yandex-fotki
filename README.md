@@ -3,9 +3,9 @@ API для работы с сервисом Яндекс.Фотки
 
 Функционал
 ----------
-- [Получение Fimp-токена](http://api.yandex.ru/fotki/doc/concepts/fimptoken.xml) по логину/паролю
+- [Получение Fimp-токена](https://github.com/dmkuznetsov/php-yandex-fotki/wiki/%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Fimp-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D0%B0) по логину/паролю
 - Получение OAuth-токена [->](http://api.yandex.ru/fotki/doc/overview/oauth-token.xml)
-- [Получение сервисного документа](http://api.yandex.ru/fotki/doc/operations-ref/service-document-get.xml)
+- [Получение сервисного документа](https://github.com/dmkuznetsov/php-yandex-fotki/wiki/%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%B5%D1%80%D0%B2%D0%B8%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0)
 - Загрузка изображения [->](http://api.yandex.ru/fotki/doc/concepts/add-photo.xml)
 - [Постраничная выдача коллекций](http://api.yandex.ru/fotki/doc/operations-ref/collection-partial-lists.xml)
 - [Получение данных альбома](http://api.yandex.ru/fotki/doc/operations-ref/album-get.xml)

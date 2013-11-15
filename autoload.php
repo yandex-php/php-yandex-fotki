@@ -27,7 +27,6 @@ function __dm_autoload_fotki( $name )
   'Yandex\\Fotki\\Exception\\Api\\Photo' => 'source/Yandex/Fotki/Exception/Api/Photo.php',
   'Yandex\\Fotki\\Exception\\Api\\PhotosCollection' => 'source/Yandex/Fotki/Exception/Api/PhotosCollection.php',
   'Yandex\\Fotki\\Exception\\Api\\ServiceDocument' => 'source/Yandex/Fotki/Exception/Api/ServiceDocument.php',
-  'Yandex\\Fotki\\Exception\\AuthorizeError' => 'source/Yandex/Fotki/Exception/AuthorizeError.php',
   'Yandex\\Fotki\\Exception\\CurlError' => 'source/Yandex/Fotki/Exception/CurlError.php',
   'Yandex\\Fotki\\Exception\\ServerError' => 'source/Yandex/Fotki/Exception/ServerError.php',
   'Yandex\\Fotki\\Transport' => 'source/Yandex/Fotki/Transport.php',
