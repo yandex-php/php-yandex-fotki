@@ -1,7 +1,39 @@
 API для работы с сервисом Яндекс.Фотки
 ======================================
 
-На данный момент поддерживается только авторизация по Fimp-Token'у
+Функционал
+----------
+- [Получение Fimp-токена](http://api.yandex.ru/fotki/doc/concepts/fimptoken.xml) по логину/паролю
+- Получение OAuth-токена [-](http://api.yandex.ru/fotki/doc/overview/oauth-token.xml)
+- [Получение сервисного документа](http://api.yandex.ru/fotki/doc/operations-ref/service-document-get.xml)
+- Загрузка изображения [-](http://api.yandex.ru/fotki/doc/concepts/add-photo.xml)
+- [Постраничная выдача коллекций](http://api.yandex.ru/fotki/doc/operations-ref/collection-partial-lists.xml)
+- [Получение данных альбома](http://api.yandex.ru/fotki/doc/operations-ref/album-get.xml)
+- Добавление нового альбома [-](http://api.yandex.ru/fotki/doc/operations-ref/albums-create.xml)
+- Редактирование альбома [-](http://api.yandex.ru/fotki/doc/operations-ref/album-edit.xml)
+- Удаление альбома [-](http://api.yandex.ru/fotki/doc/operations-ref/album-delete.xml)
+- [Получение данных фотографии](http://api.yandex.ru/fotki/doc/operations-ref/photo-get.xml)
+- Редактирование фотографии [-](http://api.yandex.ru/fotki/doc/operations-ref/photo-edit.xml)
+- Удаление фотографии [-](http://api.yandex.ru/fotki/doc/operations-ref/photo-delete.xml)
+- Получение данных тега [-](http://api.yandex.ru/fotki/doc/operations-ref/get-tag.xml)
+- Добавление тега [-](http://api.yandex.ru/fotki/doc/operations-ref/add-tag.xml)
+- Редактирование тега [-](http://api.yandex.ru/fotki/doc/operations-ref/edit-tag.xml)
+- Удаление тега [-](http://api.yandex.ru/fotki/doc/operations-ref/delete-tag.xml)
+- [Получение данных коллекции альбомов](http://api.yandex.ru/fotki/doc/operations-ref/albums-collection-get.xml)
+- Добавление нового альбома [-](http://api.yandex.ru/fotki/doc/operations-ref/albums-collection-create.xml)
+- [Получение данных коллекции фотографий](http://api.yandex.ru/fotki/doc/operations-ref/album-photos-collection-get.xml)
+- Загрузка изображения в альбом [-](http://api.yandex.ru/fotki/doc/operations-ref/album-photos-collection-add.xml)
+- [Получение данных общей коллекции фотографий](http://api.yandex.ru/fotki/doc/operations-ref/all-photos-collection-get.xml)
+- Загрузка изображения в общую коллекцию фотографий [-](http://api.yandex.ru/fotki/doc/operations-ref/all-photos-collection-add.xml)
+- Получение данных коллекции тегов [-](http://api.yandex.ru/fotki/doc/operations-ref/tag-collection-get.xml)
+- Получение данных коллекции фоторафий тега [-](http://api.yandex.ru/fotki/doc/operations-ref/tag-photos-collection-get.xml)
+- Получение коллекции новых интересных фотографий [-](http://api.yandex.ru/fotki/doc/operations-ref/interesting-photos-get.xml)
+- Получение коллекции популярных фотографий [-](http://api.yandex.ru/fotki/doc/operations-ref/top-photos-get.xml)
+- Получение коллекции "Фото дня" [-](http://api.yandex.ru/fotki/doc/operations-ref/day-photos-get.xml)
+
+
+Примеры
+-------
 
 ```php
 $api = new \Yandex\Fotki\Api($login);
@@ -59,8 +91,8 @@ $photos = $album->loadAll()->getList();
 
 По всему коду прописаны php-doc комментарии, поэтому в IDE должны быть нормальные подсказки по методам у объектов.
 
-Кэширование
------------
+### Кэширование
+
 Для объектов API реализован интерфейс Serializable, что позволит вам сохранять полученные объекты в текстовом представлении.
 
 ```php
