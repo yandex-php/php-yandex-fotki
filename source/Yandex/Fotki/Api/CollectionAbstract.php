@@ -148,6 +148,14 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
     }
 
     /**
+     * @return int
+     */
+    public function getCount()
+    {
+        return count($this->_data);
+    }
+
+    /**
      * @param int $limit
      * @return self
      */
