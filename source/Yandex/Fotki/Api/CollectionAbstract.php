@@ -221,6 +221,7 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
         } catch (\Yandex\Fotki\Exception $ex) {
             throw $ex;
         }
+        $this->resetFilters();
     }
 
     protected function _getApiUrlWithParams($url)
