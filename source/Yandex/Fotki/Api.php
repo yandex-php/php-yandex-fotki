@@ -52,22 +52,26 @@ class Api
 
     /**
      * Авторизация по fimp-токену
+     * @deprecated
      * @param string $token Fimp токен
      * @return self
      */
     public function fimp($token)
     {
+        trigger_error('\\Yandex\\Fotki\\Api::fimp() is deprecated! Use \\Yandex\\Fotki\\Api::oauth()', E_USER_DEPRECATED);
         $this->_transport->setFimpToken($token);
         return $this;
     }
 
     /**
      * Авторизация по паролю
+     * @deprecated
      * @param string $password
      * @return self
      */
     public function password($password)
     {
+        trigger_error('\\Yandex\\Fotki\\Api::password() is deprecated! Use \\Yandex\\Fotki\\Api::oauth()', E_USER_DEPRECATED);
         $auth = new \Yandex\Fotki\Api\FimpAuth($this->_transport, $this->_login, $password, null);
         $this->_transport->setFimpToken($auth->getToken());
         return $this;
