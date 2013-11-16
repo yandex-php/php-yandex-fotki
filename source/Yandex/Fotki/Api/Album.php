@@ -11,7 +11,7 @@ namespace Yandex\Fotki\Api;
  * @method \Yandex\Fotki\Api\Album setLimit(\int $limit)
  * @method \Yandex\Fotki\Api\Photo[] getList()
  */
-class Album extends \Yandex\Fotki\Api\AbstractCollection
+class Album extends \Yandex\Fotki\Api\CollectionAbstract
 {
     /**
      * @var string Ссылка для редактирования ресурса альбома

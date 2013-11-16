@@ -2,12 +2,12 @@
 namespace Yandex\Fotki\Api;
 
 /**
- * Class AbstractCollection
+ * Class CollectionAbstract
  * @package Yandex\Fotki\Api
  * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
  * @license The MIT License (MIT)
  */
-abstract class AbstractCollection extends \Yandex\Fotki\ApiAbstract
+abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
 {
     /**
      * По времени последнего изменения, от новых к старым

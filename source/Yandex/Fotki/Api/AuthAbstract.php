@@ -8,7 +8,7 @@ namespace Yandex\Fotki\Api;
  * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/overview/authorization.xml
  */
-abstract class AbstractAuth extends \Yandex\Fotki\ApiAbstract
+abstract class AuthAbstract extends \Yandex\Fotki\ApiAbstract
 {
     /**
      * @var string

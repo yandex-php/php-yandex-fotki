@@ -8,7 +8,7 @@ namespace Yandex\Fotki\Api;
  * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/concepts/fimptoken.xml
  */
-class FimpAuth extends \Yandex\Fotki\Api\AbstractAuth
+class FimpAuth extends \Yandex\Fotki\Api\AuthAbstract
 {
     /**
      * @var string

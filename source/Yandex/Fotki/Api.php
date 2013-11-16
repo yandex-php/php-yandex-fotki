@@ -14,7 +14,7 @@ class Api
      */
     protected $_transport;
     /**
-     * @var \Yandex\Fotki\Api\AbstractAuth
+     * @var \Yandex\Fotki\Api\AuthAbstract
      */
     protected $_auth;
     /**
@@ -66,7 +66,7 @@ class Api
     }
 
     /**
-     * @return null|\Yandex\Fotki\Api\AbstractAuth
+     * @return null|\Yandex\Fotki\Api\AuthAbstract
      */
     public function getAuth()
     {

@@ -11,7 +11,7 @@ namespace Yandex\Fotki\Api;
  * @method \Yandex\Fotki\Api\TagsCollection setLimit(\int $limit)
  * @method \Yandex\Fotki\Api\Tag[] getList()
  */
-class TagsCollection extends \Yandex\Fotki\Api\AbstractCollection
+class TagsCollection extends \Yandex\Fotki\Api\CollectionAbstract
 {
     /**
      * @return self

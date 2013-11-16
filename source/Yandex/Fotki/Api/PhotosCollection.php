@@ -11,7 +11,7 @@ namespace Yandex\Fotki\Api;
  * @method \Yandex\Fotki\Api\PhotosCollection setLimit(\int $limit)
  * @method \Yandex\Fotki\Api\Photo[] getList()
  */
-class PhotosCollection extends \Yandex\Fotki\Api\AbstractCollection
+class PhotosCollection extends \Yandex\Fotki\Api\CollectionAbstract
 {
 
     /**
