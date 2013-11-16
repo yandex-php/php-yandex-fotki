@@ -28,6 +28,9 @@ class TagsCollection extends \Yandex\Fotki\Api\CollectionAbstract
         if (isset($data['links']['next'])) {
             $this->_apiUrlNextPage = (string)$data['links']['next'];
         }
+        if (isset($data['updated'])) {
+            $this->_dateUpdated = (string)$data['updated'];
+        }
         foreach ($data['entries'] as $entry) {
             $this->_data[] = $entry;
             $tag = new \Yandex\Fotki\Api\Tag($this->_transport, $entry['links']['self']);

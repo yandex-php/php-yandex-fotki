@@ -36,7 +36,7 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
     /**
      * @var string Идентификатор Atom Entry альбома
      */
-    protected $_id;
+    protected $_atomId;
     /**
      * @var int Идентификатор родительского альбома
      */
@@ -197,16 +197,16 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
      */
     public function getId()
     {
-        $result = substr($this->_id, strrpos($this->_id, ':') + 1);
+        $result = substr($this->_atomId, strrpos($this->_atomId, ':') + 1);
         return $result;
     }
 
     /**
      * @return string
      */
-    public function getFullId()
+    public function getAtomId()
     {
-        return $this->_id;
+        return $this->_atomId;
     }
 
     /**
@@ -304,7 +304,7 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
             $this->_apiUrl = (string)$entry['links']['self'];
         }
         if (isset($entry['id'])) {
-            $this->_id = (string)$entry['id'];
+            $this->_atomId = (string)$entry['id'];
         }
         if (isset($entry['links']['album'])) {
             if (preg_match('/\/(\d+)\//', $entry['links']['album'], $matches)) {
@@ -373,6 +373,9 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
             $this->_apiUrlNextPage = null;
             if (isset($data['links']['next'])) {
                 $this->_apiUrlNextPage = (string)$data['links']['next'];
+            }
+            if (isset($data['updated'])) {
+                $this->_dateUpdated = (string)$data['updated'];
             }
             if (isset($data['entries'])) {
                 foreach ($data['entries'] as $photoData) {

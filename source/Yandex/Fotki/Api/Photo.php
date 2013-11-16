@@ -61,7 +61,7 @@ class Photo extends \Yandex\Fotki\ApiAbstract
     /**
      * @var string Идентификатор Atom Entry фотографии
      */
-    protected $_id;
+    protected $_atomId;
     /**
      * @var string Название фотографии
      */
@@ -314,8 +314,16 @@ class Photo extends \Yandex\Fotki\ApiAbstract
      */
     public function getId()
     {
-        $result = substr($this->_id, strrpos($this->_id, ':') + 1);
+        $result = substr($this->_atomId, strrpos($this->_atomId, ':') + 1);
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAtomId()
+    {
+        return $this->_atomId;
     }
 
     /**
@@ -557,7 +565,7 @@ class Photo extends \Yandex\Fotki\ApiAbstract
     public function initWithData(array $entry)
     {
         if (isset($entry['id'])) {
-            $this->_id = (string)$entry['id'];
+            $this->_atomId = (string)$entry['id'];
         }
         if (isset($entry['links']['album'])) {
             if (preg_match('/\/(\d+)\//', $entry['links']['album'], $matches)) {

@@ -28,6 +28,9 @@ class AlbumsCollection extends \Yandex\Fotki\Api\CollectionAbstract
         if (isset($data['links']['next'])) {
             $this->_apiUrlNextPage = (string)$data['links']['next'];
         }
+        if (isset($data['updated'])) {
+            $this->_dateUpdated = (string)$data['updated'];
+        }
         foreach ($data['entries'] as $entry) {
             $album = new \Yandex\Fotki\Api\Album($this->_transport, $entry['links']['self']);
             $album->initWithData($entry);
