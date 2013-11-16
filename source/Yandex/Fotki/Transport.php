@@ -22,7 +22,12 @@ class Transport implements \Serializable
     /**
      * @var string
      */
-    protected $_token;
+    protected $_oauthToken;
+
+    /**
+     * @var string
+     */
+    protected $_fimpToken;
 
     public function __construct()
     {
@@ -50,7 +55,7 @@ class Transport implements \Serializable
      */
     public function serialize()
     {
-        return serialize(array('token' => $this->_token));
+        return serialize(array('token' => $this->_oauthToken));
     }
 
     /**
@@ -65,17 +70,27 @@ class Transport implements \Serializable
     {
         $serialized = unserialize($serialized);
         if (is_array($serialized) && isset($serialized['token'])) {
-            $this->_token = $serialized['token'];
+            $this->_oauthToken = $serialized['token'];
         }
     }
 
     /**
-     * @param string $token
+     * @param string $token OAuth токен
      * @return self
      */
-    public function setToken($token)
+    public function setOAuthToken($token)
     {
-        $this->_token = (string)$token;
+        $this->_oauthToken = (string)$token;
+        return $this;
+    }
+
+    /**
+     * @param string $token Fimp токен
+     * @return self
+     */
+    public function setFimpToken($token)
+    {
+        $this->_fimpToken = (string)$token;
         return $this;
     }
 
@@ -96,8 +111,10 @@ class Transport implements \Serializable
                 curl_setopt($curl, CURLOPT_HTTPGET, 1);
                 break;
         }
-        if (!empty($this->_token)) {
-            $headers[] = 'Authorization: FimpToken realm="fotki.yandex.ru", token="' . $this->_token . '"';
+        if (!empty($this->_oauthToken)) {
+            $headers[] = 'Authorization: OAuth '. $this->_oauthToken;
+        } elseif(!empty($this->_fimpToken)) {
+            $headers[] = 'Authorization: FimpToken realm="fotki.yandex.ru", token="' . $this->_fimpToken . '"';
         }
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         $data = curl_exec($curl);

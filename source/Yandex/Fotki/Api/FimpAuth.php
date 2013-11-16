@@ -8,8 +8,16 @@ namespace Yandex\Fotki\Api;
  * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/concepts/fimptoken.xml
  */
-class FimpAuth extends \Yandex\Fotki\Api\AuthAbstract
+class FimpAuth
 {
+    /**
+     * @var string
+     */
+    protected $_token;
+    /**
+     * @var string
+     */
+    protected $_login;
     /**
      * @var string
      */
@@ -56,6 +64,22 @@ class FimpAuth extends \Yandex\Fotki\Api\AuthAbstract
             'credentials' => $this->_credentials);
         $this->_loadToken($this->_transport, 'http://auth.mobile.yandex.ru/yamrsa/token/', $params);
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->_token;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogin()
+    {
+        return $this->_login;
     }
 
     protected function _loadRsaKey(\Yandex\Fotki\Transport $transport, $apiUrl)

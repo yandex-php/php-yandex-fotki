@@ -14,10 +14,6 @@ class Api
      */
     protected $_transport;
     /**
-     * @var \Yandex\Fotki\Api\AuthAbstract
-     */
-    protected $_auth;
-    /**
      * @var \Yandex\Fotki\Api\ServiceDocument
      */
     protected $_serviceDocument;
@@ -37,7 +33,8 @@ class Api
     }
 
     /**
-     * @param string $str Token или пароль пользователя
+     * @deprecated
+     * @param $str
      * @return self
      */
     public function auth($str)
@@ -46,12 +43,44 @@ class Api
         $password = null;
         // пароль на Яндексе не может быть более 20 символов
         if (strlen($str) <= 20) {
-            $password = $str;
+            $this->password($str);
         } else {
-            $token = $str;
+            $this->fimp($str);
         }
-        $this->_auth = new \Yandex\Fotki\Api\FimpAuth($this->_transport, $this->_login, $password, $token);
-        $this->_transport->setToken($this->_auth->getToken());
+        return $this;
+    }
+
+    /**
+     * Авторизация по fimp-токену
+     * @param string $token Fimp токен
+     * @return self
+     */
+    public function fimp($token)
+    {
+        $this->_transport->setFimpToken($token);
+        return $this;
+    }
+
+    /**
+     * Авторизация по паролю
+     * @param string $password
+     * @return self
+     */
+    public function password($password)
+    {
+        $auth = new \Yandex\Fotki\Api\FimpAuth($this->_transport, $this->_login, $password, null);
+        $this->_transport->setFimpToken($auth->getToken());
+        return $this;
+    }
+
+    /**
+     * Авторизацию по oauth-токену
+     * @param string $token OAuth токен
+     * @return self
+     */
+    public function oauth($token)
+    {
+        $this->_transport->setOAuthToken($token);
         return $this;
     }
 
@@ -63,14 +92,6 @@ class Api
     {
         $this->_serviceDocument->load();
         return $this;
-    }
-
-    /**
-     * @return null|\Yandex\Fotki\Api\AuthAbstract
-     */
-    public function getAuth()
-    {
-        return $this->_auth;
     }
 
     /**
