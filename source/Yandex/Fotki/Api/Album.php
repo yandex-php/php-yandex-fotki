@@ -358,7 +358,7 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
 
     /**
      * Загружаем список фотографий
-     * @throws \Yandex\Fotki\Exception\Api\Album
+     * @throws \Yandex\Fotki\Exception\Api\PhotosCollection
      * @return self
      */
     protected function _loadPhotos()
@@ -373,7 +373,7 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
                     $this->_data[$photo->getId()] = $photo;
                 }
             } catch (\Yandex\Fotki\Exception\Api $ex) {
-                throw new \Yandex\Fotki\Exception\Api\Album($ex->getMessage(), $ex->getCode(), $ex);
+                throw new \Yandex\Fotki\Exception\Api\PhotosCollection($ex->getMessage(), $ex->getCode(), $ex);
             }
         }
         return $this;
