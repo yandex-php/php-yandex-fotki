@@ -1,13 +1,14 @@
 {
     "name": "yandex/fotki",
-    "description": "PHP-library for interactions with Yandex.Fotki",
-    "minimum-stability": "stable",
-    "keywords": ["api", "yandex", "fotki"],
     "type": "library",
+    "description": "PHP-library for interactions with Yandex.Fotki / PHP реализация API для работы с сервисом Яндекс.Фотки",
+    "keywords": ["api", "yandex", "fotki", "яндекс", "фотки", "апи"],
+    "license": "The MIT License (MIT)",
     "authors": [
         {
             "name": "Dmitry Kuznetsov",
-            "email": "kuznetsov2d@gmail.com"
+            "email": "kuznetsov2d@gmail.com",
+            "homepage": "http://dmkuznetsov.com"
         }
     ],
     "require": {
@@ -17,5 +18,10 @@
         "psr-0": {
             "Yandex\\Fotki": "source/"
         }
+    },
+    "support": {
+        "source": "https://github.com/dmkuznetsov/php-yandex-fotki",
+        "issues": "https://github.com/dmkuznetsov/php-yandex-fotki/issues",
+        "wiki": "https://github.com/dmkuznetsov/php-yandex-fotki/wiki"
     }
 }
