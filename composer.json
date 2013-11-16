@@ -2,7 +2,7 @@
     "name": "yandex/fotki",
     "type": "library",
     "description": "PHP-library for interactions with Yandex.Fotki / PHP реализация API для работы с сервисом Яндекс.Фотки",
-    "keywords": ["api", "yandex", "fotki", "яндекс", "фотки", "апи"],
+    "keywords": ["api", "yandex", "fotki"],
     "license": "The MIT License (MIT)",
     "authors": [
         {
