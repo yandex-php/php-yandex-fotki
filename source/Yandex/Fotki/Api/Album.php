@@ -364,26 +364,16 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract
     protected function _loadPhotos()
     {
         if (!empty($this->_apiUrlPhotos)) {
-            $url = $this->_getApiUrlWithParams($this->_apiUrlPhotos);
             try {
-                $data = $this->_getData($this->_transport, $url);
-            } catch (\Yandex\Fotki\Exception\Api $ex) {
-                throw new \Yandex\Fotki\Exception\Api\Album($ex->getMessage(), $ex->getCode(), $ex);
-            }
-            $this->_apiUrlNextPage = null;
-            if (isset($data['links']['next'])) {
-                $this->_apiUrlNextPage = (string)$data['links']['next'];
-            }
-            if (isset($data['updated'])) {
-                $this->_dateUpdated = (string)$data['updated'];
-            }
-            if (isset($data['entries'])) {
-                foreach ($data['entries'] as $photoData) {
+                $this->_loadCollectionData($this->_apiUrlPhotos);
+                foreach ($this->_entries as $entry) {
                     $photo = new \Yandex\Fotki\Api\Photo($this->_transport);
-                    $photo->initWithData($photoData)
+                    $photo->initWithData($entry)
                         ->setApiUrlAlbum($this->_apiUrl);
                     $this->_data[$photo->getId()] = $photo;
                 }
+            } catch (\Yandex\Fotki\Exception\Api $ex) {
+                throw new \Yandex\Fotki\Exception\Api\Album($ex->getMessage(), $ex->getCode(), $ex);
             }
         }
         return $this;

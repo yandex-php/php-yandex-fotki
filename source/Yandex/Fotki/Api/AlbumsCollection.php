@@ -20,21 +20,14 @@ class AlbumsCollection extends \Yandex\Fotki\Api\CollectionAbstract
     public function load()
     {
         try {
-            $data = $this->_getData($this->_transport, $this->_getApiUrlWithParams($this->_apiUrl));
+            $this->_loadCollectionData($this->_apiUrl);
+            foreach ($this->_entries as $entry) {
+                $album = new \Yandex\Fotki\Api\Album($this->_transport, $entry['links']['self']);
+                $album->initWithData($entry);
+                $this->_data[$album->getId()] = $album;
+            }
         } catch (\Yandex\Fotki\Exception\Api $ex) {
             throw new \Yandex\Fotki\Exception\Api\AlbumsCollection($ex->getMessage(), $ex->getCode(), $ex);
-        }
-        $this->_apiUrlNextPage = null;
-        if (isset($data['links']['next'])) {
-            $this->_apiUrlNextPage = (string)$data['links']['next'];
-        }
-        if (isset($data['updated'])) {
-            $this->_dateUpdated = (string)$data['updated'];
-        }
-        foreach ($data['entries'] as $entry) {
-            $album = new \Yandex\Fotki\Api\Album($this->_transport, $entry['links']['self']);
-            $album->initWithData($entry);
-            $this->_data[$album->getId()] = $album;
         }
         return $this;
     }

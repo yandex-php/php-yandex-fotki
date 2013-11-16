@@ -62,6 +62,10 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
      * @var array Данные
      */
     protected $_data = array();
+    /**
+     * @var array Исходные данные
+     */
+    protected $_entries = array();
 
     /**
      * @param \Yandex\Fotki\Transport $transport
@@ -153,6 +157,16 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
         return $this;
     }
 
+    /**
+     * @param string $order
+     * @return self
+     */
+    public function setOrder($order)
+    {
+        $this->_order = $order;
+        return $this;
+    }
+
 //    /**
 //     * @param string $offset
 //     * @return self
@@ -164,16 +178,6 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
 //    }
 
     /**
-     * @param string $order
-     * @return self
-     */
-    public function setOrder($order)
-    {
-        $this->_order = $order;
-        return $this;
-    }
-
-    /**
      * Сбрасываем фильтры
      * @return self
      */
@@ -182,6 +186,33 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
         $this->_order = null;
         $this->_limit = null;
         return $this;
+    }
+
+    /**
+     * Загружаем информацию по коллекции для дальнейшей обработки
+     * @param string $apiUrl
+     * @throws \Exception
+     * @throws \Yandex\Fotki\Exception
+     */
+    protected function _loadCollectionData($apiUrl)
+    {
+        $this->_apiUrlNextPage = null;
+        $this->_dateUpdated = null;
+        $this->_entries = array();
+        try {
+            $data = $this->_getData($this->_transport, $this->_getApiUrlWithParams($apiUrl));
+            if (isset($data['links']['next'])) {
+                $this->_apiUrlNextPage = (string)$data['links']['next'];
+            }
+            if (isset($data['updated'])) {
+                $this->_dateUpdated = (string)$data['updated'];
+            }
+            if (isset($data['entries']) && is_array($data['entries'])) {
+                $this->_entries = $data['entries'];
+            }
+        } catch (\Yandex\Fotki\Exception $ex) {
+            throw $ex;
+        }
     }
 
     protected function _getApiUrlWithParams($url)
