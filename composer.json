@@ -8,7 +8,7 @@
         {
             "name": "Dmitry Kuznetsov",
             "email": "kuznetsov2d@gmail.com",
-            "homepage": "http://dmkuznetsov.com"
+            "homepage": "http://kuznetsov.io"
         }
     ],
     "require": {
@@ -20,8 +20,8 @@
         }
     },
     "support": {
-        "source": "https://github.com/dmkuznetsov/php-yandex-fotki",
-        "issues": "https://github.com/dmkuznetsov/php-yandex-fotki/issues",
-        "wiki": "https://github.com/dmkuznetsov/php-yandex-fotki/wiki"
+        "source": "https://github.com/yandex-php/php-yandex-fotki",
+        "issues": "https://github.com/yandex-php/php-yandex-fotki/issues",
+        "wiki": "https://github.com/yandex-php/php-yandex-fotki/wiki"
     }
 }
