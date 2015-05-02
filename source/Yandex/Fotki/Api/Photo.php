@@ -531,9 +531,16 @@ class Photo extends \Yandex\Fotki\ApiAbstract
         return $this;
     }
 
-    public function upload($file)
+
+    /**
+     * @param $data
+     *
+     * @return mixed|null
+     * @throws \Yandex\Fotki\Exception\Api
+     */
+    public function upload($data)
     {
-        // @todo:
+        return $this->_postData($this->_transport, $this->_apiUrl, $data);
     }
 
     public function update()

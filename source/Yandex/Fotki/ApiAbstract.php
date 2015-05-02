@@ -115,22 +115,31 @@ abstract class ApiAbstract implements \Serializable
         return $result;
     }
 
-//    protected function _postData(\Yandex\Fotki\Transport $transport, $apiUrl, array $data)
-//    {
-//        $error = true;
-//        $result = null;
-//        $tmp = $transport->post($apiUrl, $data);
-//        if ($tmp['code'] == 200) {
-//            $result = json_decode($tmp['data'], true);
-//            if (!is_null($result)) {
-//                $error = false;
-//            }
-//        }
-//        if ($error) {
-//            $text = strip_tags($tmp['data']);
-//            $msg = sprintf("Command %s error (%s). %s", get_called_class(), $apiUrl, trim($text));
-//            throw new \Yandex\Fotki\Exception\Command($msg, $tmp['code']);
-//        }
-//        return $result;
-//    }
+    /**
+     * Загрузка фото
+     * @param Transport $transport
+     * @param           $apiUrl
+     * @param array     $data
+     *
+     * @return mixed|null
+     * @throws Exception\Api
+     */
+    protected function _postData(\Yandex\Fotki\Transport $transport, $apiUrl, array $data)
+    {
+        $error = true;
+        $result = null;
+        $tmp = $transport->post($apiUrl, $data);
+        if ($tmp['code'] == 200 || $tmp['code'] == 201) {
+            $result = json_decode($tmp['data'], true);
+            if (!is_null($result)) {
+                $error = false;
+            }
+        }
+        if ($error) {
+            $text = strip_tags($tmp['data']);
+            $msg = sprintf("Command %s error (%s). %s", get_called_class(), $apiUrl, trim($text));
+            throw new \Yandex\Fotki\Exception\Api($msg, $tmp['code']);
+        }
+        return $result;
+    }
 }
