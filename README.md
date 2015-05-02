@@ -108,8 +108,8 @@ echo serialize($collection);
 
 ### Загрузка фото
 ```php
-$api = new \Yandex\Fotki\Api($cfg['yandexLogin']);
-$api->oauth($cfg['token']);
+$api = new \Yandex\Fotki\Api($login);
+$api->oauth($token);
 
 // Получаем путь к картинке на сервере.
 $imgPath = 'path_to_photo.png';
