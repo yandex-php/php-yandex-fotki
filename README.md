@@ -105,3 +105,21 @@ $collection = $api->getAlbumsCollection()->loadAll();
 // Сериализуем коллекцию (и можем сохранить в кэш, например)
 echo serialize($collection);
 ```
+
+### Загрузка фото
+```php
+$api = new \Yandex\Fotki\Api($cfg['yandexLogin']);
+$api->oauth($cfg['token']);
+
+// Получаем путь к картинке на сервере.
+$imgPath = 'path_to_photo.png';
+
+try {
+    // Попробуем загрузить картинку на Яндекс.Фотки
+    // Вторым параметром можно указать id 
+    $arPhoto = $api->sendPhoto(array('image'=> '@'. $imgPath,'access' => 'public'), 479011);
+} catch (\Yandex\Fotki\Exception\Api $ex) {
+}
+// Посмотрим что получилось.
+print_r($arPhoto);
+```
