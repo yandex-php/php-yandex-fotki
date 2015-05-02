@@ -116,7 +116,7 @@ $imgPath = 'path_to_photo.png';
 
 try {
     // Попробуем загрузить картинку на Яндекс.Фотки
-    // Вторым параметром можно указать id 
+    // Вторым параметром можно (не обязательно) указать id фотоальбома, в который должна попасть фотка
     $arPhoto = $api->sendPhoto(array('image'=> '@'. $imgPath,'access' => 'public'), 479011);
 } catch (\Yandex\Fotki\Exception\Api $ex) {
 }
