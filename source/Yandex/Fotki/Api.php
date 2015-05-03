@@ -157,4 +157,22 @@ class Api
         $album = new \Yandex\Fotki\Api\Album($this->_transport, $apiUrl);
         return $album;
     }
+
+    /**
+     * @param $data
+     * @param $albumId
+     *
+     * @return $this
+     * @throws \Yandex\Fotki\Exception\Api\Photo
+     */
+    public function sendPhoto($data, $albumId)
+    {
+        if($albumId) {
+            $apiUrl = sprintf("http://api-fotki.yandex.ru/api/users/%s/album/%s/photos/?format=json", $this->_login, trim($albumId));
+        } else {
+            $apiUrl = sprintf("http://api-fotki.yandex.ru/api/users/%s/photos/?format=json", $this->_login);
+        }
+        $photo = new \Yandex\Fotki\Api\Photo($this->_transport, $apiUrl);
+        return $photo->upload($data);
+    }
 }
