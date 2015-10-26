@@ -221,7 +221,11 @@ class Photo extends \Yandex\Fotki\ApiAbstract
      */
     public function setTags($tags)
     {
-        $this->_tags = (string)$tags;
+        if(is_array($tags) || $tags instanceof \ArrayAccess){
+            $this->_tags = implode(', ', $tags);
+        }else{
+            $this->_tags = (string)$tags;
+        }
         return $this;
     }
 
