@@ -159,17 +159,58 @@ class Api {
 	}
 
 	/**
-	 * @param array $data
-	 * @param int   $albumId
+	 * Добавление нового альбома.
 	 *
-	 * @return \Yandex\Fotki\Api\Album
-	 * @throws \Yandex\Fotki\Exception\Api\Album
-	 * @throws \Yandex\Fotki\Exception\InvalidCall
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Простой пример</h2>
+	 * <code>
+	 * <?php
+	 * $album = $api->createAlbum( array(
+	 *     'title'    => 'Мой альбом',
+	 *     'summary'  => 'Описание моего альбома'
+	 * ) );
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Альбом с паролем</h2>
+	 * <code>
+	 * <?php
+	 * $album = $api->createAlbum( array(
+	 *     'title'    => 'Мой день рождения',
+	 *     'password' => 'asd123'
+	 * ) );
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Вложенный альбом</h2>
+	 * <code>
+	 * <?php
+	 * $album = $api->createAlbum( array(
+	 *     'title' => 'Дочерний альбом'
+	 * ), 456789 );
+	 * ?>
+	 * </code>
+	 *
+	 * @param array    $data         Данные альбома
+	 *                               <ul>
+	 *                               <li> ['title']    <i><u>string</u></i> Название <b>(Обязательный)</b></li>
+	 *                               <li> ['summary']  <i><u>string</u></i> Описание</li>
+	 *                               <li> ['password'] <i><u>string</u></i> Пароль</li>
+	 *                               </ul>
+	 *
+	 * @param int|null $parentId     Id родительского альбома. Если null, то альбом будет корневым.
+	 *
+	 * @return \Yandex\Fotki\Api\Album Незагруженный альбом. Чтобы продолжить с ним работать,
+	 * не забудьте вызвать метод \Yandex\Fotki\Api\Album::load
+	 *
+	 * @throws \Yandex\Fotki\Exception\Api\Album Если не удалось добавить альбом
+	 * @throws \Yandex\Fotki\Exception\InvalidCall Если произошла ошибка при генерации XML
 	 */
-	public function createAlbum( $data, $albumId ) {
+	public function createAlbum( $data, $parentId = null ) {
 
-		$url = $albumId
-			? sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $albumId ) )
+		$url = $parentId
+			? sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $parentId ) )
 			: sprintf( "http://api-fotki.yandex.ru/api/users/%s/albums/", $this->_login );
 
 		$album = new Album( $this->_transport, "{$url}?format=json" );
@@ -177,7 +218,7 @@ class Api {
 		$album->setTitle( isset( $data['title'] ) ? $data['title'] : null );
 		$album->setSummary( isset( $data['summary'] ) ? $data['summary'] : null );
 		$album->setPassword( isset( $data['password'] ) ? $data['password'] : null );
-		$album->setParentId( isset( $data['parentId'] ) ? $data['parentId'] : null );
+		$album->setParentId( $parentId );
 
 		$oAuthToken = $this->_transport->getOAuthToken();
 		$fimpToken  = $this->_transport->getFimpToken();
@@ -215,11 +256,39 @@ class Api {
 	}
 
 	/**
-	 * @param \Yandex\Fotki\Api\Album $album
+	 * Редактирование альбома
 	 *
-	 * @return \Yandex\Fotki\Api\Album
-	 * @throws \Yandex\Fotki\Exception\Api\Album
-	 * @throws \Yandex\Fotki\Exception\InvalidCall
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Изменение заголовка</h2>
+	 * <code>
+	 * <?php
+	 * $album = $api->getAlbum(123456)->load();
+	 * $album->setTitle('Новое название');
+	 *
+	 * $updatedAlbum = $api->updateAlbum($album)->load();
+	 * echo $updatedAlbum->getTitle();
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Изменение ссылки на родительский альбом</h2>
+	 * <code>
+	 * <?php
+	 * $album = $api->getAlbum(123456)->load();
+	 * $album->setParentId(654321);
+	 *
+	 * $updatedAlbum = $api->updateAlbum($album)->load();
+	 * echo $updatedAlbum->getParentId();
+	 * ?>
+	 * </code>
+	 *
+	 * @param \Yandex\Fotki\Api\Album $album Альбом, который нужно обновить
+	 *
+	 * @return \Yandex\Fotki\Api\Album Обновленный альбом. Чтобы продолжить с ним работать,
+	 * не забудьте вызвать метод \Yandex\Fotki\Api\Album::load
+	 *
+	 * @throws \Yandex\Fotki\Exception\Api\Album Если не удалось обновить альбом
+	 * @throws \Yandex\Fotki\Exception\InvalidCall Если произошла ошибка при генерации XML
 	 */
 	public function updateAlbum( Album $album ) {
 		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $album->getId() ) );
@@ -245,13 +314,67 @@ class Api {
 	}
 
 	/**
-	 * @param int    $albumId
-	 * @param string $withPhotos
-	 * @param string $withChildrenAlbums
+	 * Удаление альбома. ИСПОЛЬЗОВАТЬ С ОСТОРОЖНОСТЬЮ.
+	 *
+	 * Пожалуйста, БУДЬТЕ КРАЙНЕ ВНИМАТЕЛЬНЫ, так как одним запросом можно удалить
+	 * ВСЕ дочерние альбомы и фотографии и загубить свою судьбу.
+	 *
+	 * При вызове без явного указания на удаление дочерних фото и альбомов
+	 * будет произведена проверка на наличие таковых. И если они будут найдены,
+	 * то будет выброшено исключение.
+	 *
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Удаление альбома</h2>
+	 * <code>
+	 * <?php
+	 * $api->deleteAlbum(123456);
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Удаление альбома вместо с дочерними фотографиями</h2>
+	 * Обратите внимание на то, что поиск фотографий будет производиться
+	 * ТОЛЬКО в указанном альбоме, но не в его дочерних альбомах.
+	 * Если внутри будет альбом "Неразобранное", то фотографии не будут найдены.
+	 *
+	 * <code>
+	 * <?php
+	 * $api->deleteAlbum(123456, $api::DELETE_ALBUM_WITH_PHOTOS_YES);
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Удаление альбома вместо с дочерними фотографиями и дочерними альбомами</h2>
+	 * Самый опасный вариант вызова - можно удалить ВСЕ данные.
+	 * Дважды подумайте перед вызовом - если вы передатите не тот ID,
+	 * может удалиться вся ваша коллекция, а вас будут презирать и порицать.
+	 *
+	 * <code>
+	 * <?php
+	 * $api->deleteAlbum(123456, $api::DELETE_ALBUM_WITH_PHOTOS_YES, $api::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_YES);
+	 * ?>
+	 * </code>
+	 *
+	 * @param int    $albumId            Id альбома, который нужно удалить
+	 * @param string $withPhotos         Удалить вместе с дочерними фотографиями.
+	 *                                   Не является bool-значением во избежание
+	 *                                   неправильных неумышленных вызовов.
+	 * @param string $withChildrenAlbums Удалить вместе с дочерними альбомами.
+	 *                                   Не является bool-значением во избежание
+	 *                                   неправильных неумышленных вызовов.
+	 *
+	 * @see \Yandex\Fotki\Api::DELETE_ALBUM_WITH_PHOTOS_NO
+	 * @see \Yandex\Fotki\Api::DELETE_ALBUM_WITH_PHOTOS_YES
+	 * @see \Yandex\Fotki\Api::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_NO
+	 * @see \Yandex\Fotki\Api::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_YES
+	 *
+	 * @see \Yandex\Fotki\Exception\Api\DangerousAlbumDeleting::getAlbums
+	 * @see \Yandex\Fotki\Exception\Api\DangerousAlbumDeleting::getPhotos
 	 *
 	 * @return $this
-	 * @throws \Yandex\Fotki\Exception\Api\Album
-	 * @throws \Yandex\Fotki\Exception\Api\DangerousAlbumDeleting
+	 * @throws \Yandex\Fotki\Exception\Api\Album Если произошла ошибка во время запроса на удаление
+	 * @throws \Yandex\Fotki\Exception\Api\DangerousAlbumDeleting Если был вызов на удаление без
+	 *                                                            явного указания, что нужно удалять дочерние альбомы или фото.
+	 *                                                            Из исключения можно получить список дочерних альбомов и фото.
 	 */
 	public function deleteAlbum( $albumId, $withPhotos = self::DELETE_ALBUM_WITH_PHOTOS_NO, $withChildrenAlbums = self::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_NO ) {
 		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $albumId ) );
@@ -308,14 +431,86 @@ class Api {
 	}
 
 	/**
-	 * @param $data
-	 * @param $albumId
+	 * Добавление фотографии.
 	 *
-	 * @return \Yandex\Fotki\Api\Photo
-	 * @throws \Yandex\Fotki\Exception\Api\Album
-	 * @throws \Yandex\Fotki\Exception\Api\Photo
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Простой пример загрузки фотографии</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->createPhoto( array(
+	 *     'image' => $_SERVER['DOCUMENT_ROOT'] . '/assets/images/forest.jpg',
+	 *     'title' => 'Красивая фотография леса'
+	 * ) );
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Загрузка фотографии в определенный альбом</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->createPhoto( array(
+	 *     'image' => $_SERVER['DOCUMENT_ROOT'] . '/assets/images/forest.jpg',
+	 *     'title' => 'Красивая фотография леса'
+	 * ), 123456 );
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Загрузка фотографии в с геопривязкой</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->createPhoto( array(
+	 *     'image' => $_SERVER['DOCUMENT_ROOT'] . '/assets/images/forest.jpg',
+	 *     'title' => 'Красивая фотография леса',
+	 *     'geo'   => array(55.75396, 37.620393),
+	 *   //'geo'   => '55.75396 37.620393', // Можно задать и строкой
+	 * ) );
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Загрузка фотографии в с тегами</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->createPhoto( array(
+	 *     'image' => $_SERVER['DOCUMENT_ROOT'] . '/assets/images/forest.jpg',
+	 *     'title' => 'Красивая фотография леса',
+	 *     'tags'  => array('Лес', 'Природа', 'Лето'),
+	 *   //'tags'  => 'Лес, Природа, Лето' // Можно задать и строкой
+	 * ) );
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Собираем все вместе</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->createPhoto( array(
+	 *     'image'             => $_SERVER['DOCUMENT_ROOT'] . '/assets/images/forest.jpg',
+	 *     'title'             => 'Красивая фотография леса',
+	 *     'geo'               => array(55.75396, 37.620393),
+	 *     'tags'              => array('Лес', 'Природа', 'Лето'),
+	 *     'isAdult'           => false,     // Материал для взрослых
+	 *     'isDisableComments' => true,      // Указание на отключение комментариев
+	 *     'access'            => 'private', // Может быть 'public', 'friends', 'private'
+	 * ) );
+	 * ?>
+	 * </code>
+	 *
+	 * @param array    $data         Данные фотографии
+	 *                               <ul>
+	 *                               <li> ['image']             <i><u>string</u></i>                       Путь до изображения <b>(Обязательный)</b></li>
+	 *                               <li> ['title']             <i><u>string</u></i>                       Название изображения <b>(Обязательный)</b></li>
+	 *                               <li> ['geo']               <i><u>string|string[]</u></i>              Координаты</li>
+	 *                               <li> ['tags']              <i><u>string|string[]</u></i>              Теги</li>
+	 *                               <li> ['isAdult']           <i><u>bool</u></i>                         Метриал для взрослых</li>
+	 *                               <li> ['isDisableComments'] <i><u>bool</u></i>                         Отключить комментарии</li>
+	 *                               <li> ['access']            <i><u>'public'|'friends'|'private'</u></i> Уровень доступа</li>
+	 *                               </ul>
+	 *
+	 * @param int|null $albumId      Id родительского альбома. Если null, то фото будет загружено в корень
+	 *
+	 * @return \Yandex\Fotki\Api\Photo Добавленная фотография
+	 * @throws \Yandex\Fotki\Exception\Api\Photo Если произошла ошибка во время загрузки фотографии
 	 */
-	public function createPhoto( $data, $albumId ) {
+	public function createPhoto( $data, $albumId = null ) {
 		$url = $albumId
 			? sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/photos/?format=json", $this->_login, intval( $albumId ) )
 			: sprintf( "http://api-fotki.yandex.ru/api/users/%s/photos/?format=json", $this->_login );
@@ -351,11 +546,37 @@ class Api {
 	}
 
 	/**
+	 * Редактирование фотографии
+	 *
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Изменение заголовка</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->getPhoto(12345678)->load();
+	 * $photo->setTitle('Новое название');
+	 *
+	 * $updatedPhoto = $api->updatePhoto($photo)->load();
+	 * echo $updatedPhoto->getTitle();
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Изменение ссылки на родительский альбом</h2>
+	 * <code>
+	 * <?php
+	 * $photo = $api->getPhoto(12345678)->load();
+	 * $photo->setAlbumId(654321);
+	 *
+	 * $updatedPhoto = $api->updatePhoto($photo)->load();
+	 * echo $updatedPhoto->getAlbumId();
+	 * ?>
+	 * </code>
+	 *
 	 * @param \Yandex\Fotki\Api\Photo $photo
 	 *
-	 * @return \Yandex\Fotki\Api\Photo
-	 * @throws \Yandex\Fotki\Exception\Api\Album
-	 * @throws \Yandex\Fotki\Exception\InvalidCall
+	 * @return \Yandex\Fotki\Api\Photo Фотография, которую нужно обновить
+	 * @throws \Yandex\Fotki\Exception\Api\Photo Если призошла ошибка во время запроса на обновление
+	 * @throws \Yandex\Fotki\Exception\InvalidCall Если произошла ошибка при геренации XML
 	 */
 	public function updatePhoto( Photo $photo ) {
 		$oAuthToken = $this->_transport->getOAuthToken();
@@ -374,10 +595,39 @@ class Api {
 
 			return new Photo( $this->_transport, $url );
 		} else {
-			throw new \Yandex\Fotki\Exception\Api\Album( $response->body, $response->code );
+			throw new \Yandex\Fotki\Exception\Api\Photo( $response->body, $response->code );
 		}
 	}
 
+	/**
+	 * @param int $id
+	 *
+	 * @return \Yandex\Fotki\Api\Photo
+	 */
+	public function getPhoto( $id ) {
+		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/photo/%s/?format=json", $this->_login, trim( $id ) );
+		$photo  = new \Yandex\Fotki\Api\Photo( $this->_transport, $apiUrl );
+
+		return $photo;
+	}
+
+	/**
+	 * Удаление фотографии.
+	 *
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Удаление альбома</h2>
+	 * <code>
+	 * <?php
+	 * $api->deletePhoto(12345678);
+	 * ?>
+	 * </code>
+	 *
+	 * @param int $photoId Id фотографии, которую нужно удалить
+	 *
+	 * @return $this
+	 * @throws \Yandex\Fotki\Exception\Api\Photo
+	 */
 	public function deletePhoto( $photoId ) {
 		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/photo/%s/", $this->_login, intval( $photoId ) );
 
