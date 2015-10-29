@@ -1,6 +1,7 @@
 <?php
 namespace Yandex\Fotki;
 
+use Unirest\File;
 use Unirest\Request;
 use Yandex\Fotki\Api\Album;
 use Yandex\Fotki\Api\Photo;
@@ -252,11 +253,7 @@ class Api {
 	 * @throws \Yandex\Fotki\Exception\Api\Album
 	 * @throws \Yandex\Fotki\Exception\Api\DangerousAlbumDeleting
 	 */
-	public function deleteAlbum(
-		$albumId,
-		$withPhotos = self::DELETE_ALBUM_WITH_PHOTOS_NO,
-		$withChildrenAlbums = self::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_NO
-	) {
+	public function deleteAlbum( $albumId, $withPhotos = self::DELETE_ALBUM_WITH_PHOTOS_NO, $withChildrenAlbums = self::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_NO ) {
 		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $albumId ) );
 		$album  = new Album( $this->_transport, $apiUrl );
 
@@ -308,6 +305,94 @@ class Api {
 		$albumsCollection = new \Yandex\Fotki\Api\AlbumsCollection( $this->_transport, $apiUrl );
 
 		return $albumsCollection;
+	}
+
+	/**
+	 * @param $data
+	 * @param $albumId
+	 *
+	 * @return \Yandex\Fotki\Api\Photo
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 * @throws \Yandex\Fotki\Exception\Api\Photo
+	 */
+	public function createPhoto( $data, $albumId ) {
+		$url = $albumId
+			? sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/photos/?format=json", $this->_login, intval( $albumId ) )
+			: sprintf( "http://api-fotki.yandex.ru/api/users/%s/photos/?format=json", $this->_login );
+
+		$oAuthToken = $this->_transport->getOAuthToken();
+		$fimpToken  = $this->_transport->getFimpToken();
+
+		$headers = array(
+			'Accept'        => "application/json",
+			'Authorization' => $oAuthToken ? "OAuth {$oAuthToken}" : "FimpToken realm=\"fotki.yandex.ru\", token=\"{$fimpToken}\""
+		);
+
+		$response = Request::post( $url, $headers, array(
+			'image' => File::add( $data['image'] )
+		) );
+
+		if ( $response->code === 201 ) {
+			$photo = new Photo( $this->_transport, $url );
+			$photo->initWithData( json_decode( json_encode( $response->body ), true ) );
+
+			$photo->setTitle( isset( $data['title'] ) ? $data['title'] : $photo->getTitle() );
+			$photo->setSummary( isset( $data['summary'] ) ? $data['summary'] : $photo->getSummary() );
+			$photo->setIsAdult( isset( $data['isAdult'] ) ? $data['isAdult'] : $photo->isAdult() );
+			$photo->setIsDisableComments( isset( $data['isDisableComments'] ) ? $data['isDisableComments'] : $photo->isDisableComments() );
+			$photo->setAccess( isset( $data['access'] ) ? $data['access'] : $photo->getAccess() );
+			$photo->setGeo( isset( $data['geo'] ) ? $data['geo'] : $photo->getGeo() );
+			$photo->setTags( isset( $data['tags'] ) ? $data['tags'] : $photo->getTags() );
+
+			return $this->updatePhoto( $photo );
+		} else {
+			throw new \Yandex\Fotki\Exception\Api\Photo( $response->body, $response->code );
+		}
+	}
+
+	/**
+	 * @param \Yandex\Fotki\Api\Photo $photo
+	 *
+	 * @return \Yandex\Fotki\Api\Photo
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 * @throws \Yandex\Fotki\Exception\InvalidCall
+	 */
+	public function updatePhoto( Photo $photo ) {
+		$oAuthToken = $this->_transport->getOAuthToken();
+		$fimpToken  = $this->_transport->getFimpToken();
+
+		$body = $photo->getAtomEntryForSave()->asXML();
+
+		$headers  = array(
+			'Authorization' => $oAuthToken ? "OAuth {$oAuthToken}" : "FimpToken realm=\"fotki.yandex.ru\", token=\"{$fimpToken}\"",
+			'Content-Type'  => 'application/atom+xml; type=entry'
+		);
+		$response = Request::put( $photo->getApiUrlEdit(), $headers, $body );
+
+		if ( $response->code === 200 ) {
+			$url = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/photos/?format=json", $this->_login, intval( $photo->getId() ) );
+
+			return new Photo( $this->_transport, $url );
+		} else {
+			throw new \Yandex\Fotki\Exception\Api\Album( $response->body, $response->code );
+		}
+	}
+
+	public function deletePhoto( $photoId ) {
+		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/photo/%s/", $this->_login, intval( $photoId ) );
+
+		$oAuthToken = $this->_transport->getOAuthToken();
+		$fimpToken  = $this->_transport->getFimpToken();
+
+		$response = Request::delete( $apiUrl, array(
+			'Authorization' => $oAuthToken ? "OAuth {$oAuthToken}" : "FimpToken realm=\"fotki.yandex.ru\", token=\"{$fimpToken}\""
+		) );
+
+		if ( $response->code === 204 ) {
+			return $this;
+		} else {
+			throw new \Yandex\Fotki\Exception\Api\Photo( $response->body, $response->code );
+		}
 	}
 
 	/**
