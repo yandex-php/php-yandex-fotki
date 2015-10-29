@@ -209,9 +209,7 @@ class Api {
 	 */
 	public function createAlbum( $data, $parentId = null ) {
 
-		$url = $parentId
-			? sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $parentId ) )
-			: sprintf( "http://api-fotki.yandex.ru/api/users/%s/albums/", $this->_login );
+		$url = sprintf( "http://api-fotki.yandex.ru/api/users/%s/albums/", $this->_login );
 
 		$album = new Album( $this->_transport, "{$url}?format=json" );
 		$album->setAuthor( $this->_login );
