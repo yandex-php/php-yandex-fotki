@@ -19,9 +19,13 @@
     "php": ">=5.4.0",
     "mashape/unirest-php": "^2.6"
   },
+  "require-dev": {
+    "phpunit/phpunit": "4.8.x-dev"
+  },
   "autoload": {
     "psr-0": {
-      "Yandex\\Fotki": "source/"
+      "Yandex\\Fotki": "source/",
+      "Yandex\\Fotki\\Tests": "tests/"
     }
   },
   "support": {
