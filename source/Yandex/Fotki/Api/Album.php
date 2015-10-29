@@ -428,9 +428,17 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	 * @throws \Yandex\Fotki\Exception\InvalidCall
 	 */
 	public function getAtomEntryForSave() {
+		//@formatter:off
+		/** @noinspection CheckTagEmptyBody */
 		/** @noinspection XmlUnusedNamespaceDeclaration */
-		$xml = new \SimpleXMLElement( '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app" xmlns:f="yandex:fotki"></entry>',
-			LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL );
+		$entryTag = <<<XML
+			<entry xmlns	 = "http://www.w3.org/2005/Atom"
+				   xmlns:app = "http://www.w3.org/2007/app"
+				   xmlns:f	 = "yandex:fotki"></entry>
+XML;
+		//@formatter:on
+
+		$xml = new \SimpleXMLElement( $entryTag, LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL );
 
 		if ( $this->_title !== null ) {
 			$xml->addChild( 'title', $this->_title );
@@ -442,7 +450,6 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 			$xml->addChild( 'f:password', $this->_password, 'yandex:fotki' );
 		}
 		if ( $this->_parentId !== null ) {
-
 			if ( ! $this->_author ) {
 				throw new InvalidCall( "'Author' parameter must be set to create the parent album link" );
 			}
