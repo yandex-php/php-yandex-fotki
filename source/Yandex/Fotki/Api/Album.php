@@ -360,6 +360,9 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		if ( isset( $entry['author'] ) ) {
 			$this->_author = (string) $entry['author'];
 		}
+		if ( isset( $entry['protected'] ) ) {
+			$this->_isProtected = (bool) $entry['protected'];
+		}
 		if ( isset( $entry['title'] ) ) {
 			$this->setTitle( $entry['title'] );
 		}
