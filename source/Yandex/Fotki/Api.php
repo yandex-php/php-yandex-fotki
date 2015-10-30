@@ -209,9 +209,7 @@ class Api {
 	 */
 	public function createAlbum( $data, $parentId = null ) {
 
-		$url = $parentId
-			? sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/", $this->_login, intval( $parentId ) )
-			: sprintf( "http://api-fotki.yandex.ru/api/users/%s/albums/", $this->_login );
+		$url = sprintf( "http://api-fotki.yandex.ru/api/users/%s/albums/", $this->_login );
 
 		$album = new Album( $this->_transport, "{$url}?format=json" );
 		$album->setAuthor( $this->_login );
@@ -489,6 +487,7 @@ class Api {
 	 *     'tags'              => array('Лес', 'Природа', 'Лето'),
 	 *     'isAdult'           => false,     // Материал для взрослых
 	 *     'isDisableComments' => true,      // Указание на отключение комментариев
+	 *     'isHideOriginal'    => true,      // Указание на то, что нужно скрыть оригинал
 	 *     'access'            => 'private', // Может быть 'public', 'friends', 'private'
 	 * ) );
 	 * ?>
@@ -502,6 +501,7 @@ class Api {
 	 *                               <li> ['tags']              <i><u>string|string[]</u></i>              Теги</li>
 	 *                               <li> ['isAdult']           <i><u>bool</u></i>                         Метриал для взрослых</li>
 	 *                               <li> ['isDisableComments'] <i><u>bool</u></i>                         Отключить комментарии</li>
+	 *                               <li> ['isHideOriginal']    <i><u>bool</u></i>                         Скрывать оригинал изображения</li>
 	 *                               <li> ['access']            <i><u>'public'|'friends'|'private'</u></i> Уровень доступа</li>
 	 *                               </ul>
 	 *
@@ -531,13 +531,16 @@ class Api {
 			$photo = new Photo( $this->_transport, $url );
 			$photo->initWithData( json_decode( json_encode( $response->body ), true ) );
 
-			$photo->setTitle( isset( $data['title'] ) ? $data['title'] : $photo->getTitle() );
-			$photo->setSummary( isset( $data['summary'] ) ? $data['summary'] : $photo->getSummary() );
-			$photo->setIsAdult( isset( $data['isAdult'] ) ? $data['isAdult'] : $photo->isAdult() );
-			$photo->setIsDisableComments( isset( $data['isDisableComments'] ) ? $data['isDisableComments'] : $photo->isDisableComments() );
-			$photo->setAccess( isset( $data['access'] ) ? $data['access'] : $photo->getAccess() );
-			$photo->setGeo( isset( $data['geo'] ) ? $data['geo'] : $photo->getGeo() );
-			$photo->setTags( isset( $data['tags'] ) ? $data['tags'] : $photo->getTags() );
+			//@formatter:off
+			$photo->setTitle(             isset( $data['title'] )               ? $data['title']                : $photo->getTitle() );
+			$photo->setSummary(           isset( $data['summary'] )             ? $data['summary']              : $photo->getSummary() );
+			$photo->setIsAdult(           isset( $data['isAdult'] )             ? $data['isAdult']              : $photo->isAdult() );
+			$photo->setIsHideOriginal(    isset( $data['isHideOriginal'] )      ? $data['isHideOriginal']       : $photo->isHideOriginal() );
+			$photo->setIsDisableComments( isset( $data['isDisableComments'] )   ? $data['isDisableComments']    : $photo->isDisableComments() );
+			$photo->setAccess(            isset( $data['access'] )              ? $data['access']               : $photo->getAccess() );
+			$photo->setGeo(               isset( $data['geo'] )                 ? $data['geo']                  : $photo->getGeo() );
+			$photo->setTags(              isset( $data['tags'] )                ? $data['tags']                 : $photo->getTags() );
+			//@formatter:on
 
 			return $this->updatePhoto( $photo );
 		} else {
@@ -591,7 +594,7 @@ class Api {
 		$response = Request::put( $photo->getApiUrlEdit(), $headers, $body );
 
 		if ( $response->code === 200 ) {
-			$url = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/photos/?format=json", $this->_login, intval( $photo->getId() ) );
+			$url = sprintf( "http://api-fotki.yandex.ru/api/users/%s/photo/%s/?format=json", $this->_login, intval( $photo->getId() ) );
 
 			return new Photo( $this->_transport, $url );
 		} else {
