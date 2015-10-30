@@ -8,8 +8,6 @@ namespace Yandex\Fotki\Exception\Api;
 
 
 use Exception;
-use Yandex\Fotki\Api\Album;
-use Yandex\Fotki\Api\Photo;
 
 /**
  * Class DangerousAlbumDeleting

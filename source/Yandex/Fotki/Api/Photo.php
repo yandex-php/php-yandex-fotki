@@ -581,6 +581,9 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 		if ( isset( $entry['title'] ) ) {
 			$this->setTitle( $entry['title'] );
 		}
+		if ( isset( $entry['summary'] ) ) {
+			$this->setSummary( $entry['summary'] );
+		}
 		if ( isset( $entry['published'] ) ) {
 			$this->_datePublished = (string) $entry['published'];
 		}
@@ -662,7 +665,7 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 	 * @return self
 	 */
 	public function setIsHideOriginal( $isHideOriginal ) {
-		$this->_isHideOriginal = (bool) $isHideOriginal;
+		$this->_isHideOriginal = is_null( $isHideOriginal ) ? null : (bool) $isHideOriginal;
 
 		return $this;
 	}
@@ -766,7 +769,7 @@ XML;
 			foreach ( $tags as $tag ) {
 				$scheme = sprintf( 'http://api-fotki.yandex.ru/api/users/%s/tags/', $this->_author );
 
-				$category = $xml->addChild( 'category ', null );
+				$category = $xml->addChild( 'category', null );
 				$category->addAttribute( 'term', $tag );
 				$category->addAttribute( 'scheme', $scheme );
 			}
