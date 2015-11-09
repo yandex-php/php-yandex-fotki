@@ -222,6 +222,27 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
 
 	}
 
+	public function testImgHrefMap() {
+		$photo = $this->api->createPhoto( array(
+			'image' => FOTKI_API_ASSETS . '/test.png',
+			'title' => 'testImgHrefMap Title'
+		) )->load();
+
+		$map = $photo->getImgHrefMap();
+
+		//@formatter:off
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_XXXS ),     $map[ $photo::SIZE_XXXS ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_XXS ),      $map[ $photo::SIZE_XXS ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_XS ),       $map[ $photo::SIZE_XS ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_S ),        $map[ $photo::SIZE_S ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_M ),        $map[ $photo::SIZE_M ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_L ),        $map[ $photo::SIZE_L ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_XL ),       $map[ $photo::SIZE_XL ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_XXL ),      $map[ $photo::SIZE_XXL ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_XXXL ),     $map[ $photo::SIZE_XXXL ] );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_ORIGINAL ), $map[ $photo::SIZE_ORIGINAL ] );
+		//@formatter:on
+	}
 
 	/**
 	 * @inheritdoc

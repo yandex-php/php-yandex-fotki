@@ -528,8 +528,9 @@ class Api {
 		) );
 
 		if ( $response->code === 201 ) {
-			$photo = new Photo( $this->_transport, $url );
-			$photo->initWithData( json_decode( json_encode( $response->body ), true ) );
+			$responseBody = json_decode( json_encode( $response->body ), true );
+			$photo        = new Photo( $this->_transport, $responseBody['links']['self'] );
+			$photo->initWithData( $responseBody );
 
 			//@formatter:off
 			$photo->setTitle(             isset( $data['title'] )               ? $data['title']                : $photo->getTitle() );
