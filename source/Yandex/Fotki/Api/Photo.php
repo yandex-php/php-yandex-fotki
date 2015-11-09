@@ -542,8 +542,8 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 	}
 
 	/**
-	 * Get associative array of all image resolutions.
-	 * With its keys respectively.
+	 * Получение карты ссылок на все размеры изображения.
+	 * Ключи массива заданны соответственно размерам.
 	 *
 	 * @return string[]
 	 */
