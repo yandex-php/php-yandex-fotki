@@ -542,6 +542,27 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 	}
 
 	/**
+	 * Get associative array of all image resolutions.
+	 * With its keys respectively.
+	 *
+	 * @return string[]
+	 */
+	public function getImgHrefMap() {
+		return array(
+			self::SIZE_XXXS     => $this->getImgHref( self::SIZE_XXXS ),
+			self::SIZE_XXS      => $this->getImgHref( self::SIZE_XXS ),
+			self::SIZE_XS       => $this->getImgHref( self::SIZE_XS ),
+			self::SIZE_S        => $this->getImgHref( self::SIZE_S ),
+			self::SIZE_M        => $this->getImgHref( self::SIZE_M ),
+			self::SIZE_L        => $this->getImgHref( self::SIZE_L ),
+			self::SIZE_XL       => $this->getImgHref( self::SIZE_XL ),
+			self::SIZE_XXL      => $this->getImgHref( self::SIZE_XXL ),
+			self::SIZE_XXXL     => $this->getImgHref( self::SIZE_XXXL ),
+			self::SIZE_ORIGINAL => $this->getImgHref( self::SIZE_ORIGINAL ),
+		);
+	}
+
+	/**
 	 * @return self
 	 * @throws \Yandex\Fotki\Exception\Api\Photo
 	 */
