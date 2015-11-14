@@ -10,11 +10,9 @@ namespace Yandex\Fotki\Tests\Unit\Api;
 use Yandex\Fotki\Api;
 use Yandex\Fotki\Exception\Api\Album;
 use Yandex\Fotki\Exception\Api\Photo;
+use Yandex\Fotki\Tests\Unit\BaseTestCase;
 
-class ApiTest extends \PHPUnit_Framework_TestCase {
-
-	/** @var \Yandex\Fotki\Api */
-	public $api;
+class ApiTest extends BaseTestCase {
 
 	public function testAlbumCreate() {
 		$album = $this->api->createAlbum( array(
@@ -245,63 +243,112 @@ class ApiTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @inheritdoc
+	 * Будет воссоздана следующая структура:
+	 *
+	 * * testAlbumsBaseTree Root
+	 *   |- testAlbumsBaseTree root.category1
+	 *   |  |- testAlbumsBaseTree root.category1.product1
+	 *   |  |- testAlbumsBaseTree root.category1.product2
+	 *   |  |- testAlbumsBaseTree root.category1.product3
+	 *   |
+	 *   |- testAlbumsBaseTree root.category2
+	 *      |- testAlbumsBaseTree root.category2.product4
+	 *      |- testAlbumsBaseTree root.category2.product5
+	 *      |- testAlbumsBaseTree root.category2.product6
+	 *      |
+	 *      |- testAlbumsBaseTree root.category2.category3
+	 *         |- testAlbumsBaseTree root.category2.category3.product7
+	 *         |- testAlbumsBaseTree root.category2.category3.product8
+	 *         |- testAlbumsBaseTree root.category2.category3.product9
+	 *
+	 * @throws \Yandex\Fotki\Exception\Api\Album
 	 */
-	protected function setUp() {
-		parent::setUp();
+	public function testAlbumsBaseTree() {
+		$rootAlbum = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree Root' ) )->load();
 
-		$this->api = new Api( FOTKI_API_LOGIN );
-		$this->api->oauth( FOTKI_API_OAUTH_TOKEN );
+		$category1 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category1' ), $rootAlbum->getId() )->load();
+		$category2 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2' ), $rootAlbum->getId() )->load();
+		$category3 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.category3' ), $category2->getId() )->load();
+
+		$product1 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category1.product1' ), $category1->getId() )->load();
+		$product2 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category1.product2' ), $category1->getId() )->load();
+		$product3 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category1.product3' ), $category1->getId() )->load();
+
+		$product4 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.product4' ), $category2->getId() )->load();
+		$product5 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.product5' ), $category2->getId() )->load();
+		$product6 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.product6' ), $category2->getId() )->load();
+
+		$product7 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.category3.product7' ), $category3->getId() )->load();
+		$product8 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.category3.product8' ), $category3->getId() )->load();
+		$product9 = $this->api->createAlbum( array( 'title' => 'testAlbumsBaseTree root.category2.category3.product9' ), $category3->getId() )->load();
+
+
+		$tree = $this->api->getAlbumsTree();
+
+		//@formatter:off
+		$rootChildren      =              $tree[ $rootAlbum->getId() ]->getChildren();
+		$category1Children =      $rootChildren[ $category1->getId() ]->getChildren();
+		$category2Children =      $rootChildren[ $category2->getId() ]->getChildren();
+		$category3Children = $category2Children[ $category3->getId() ]->getChildren();
+		//@formatter:on
+
+
+		//@formatter:off
+		$this->assertEquals( 'testAlbumsBaseTree Root', $tree[ $rootAlbum->getId() ]->getTitle() );
+
+		$this->assertEquals( 'testAlbumsBaseTree root.category1',           $rootChildren[ $category1->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category1.product1',       $category1Children[ $product1->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category1.product2',       $category1Children[ $product2->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category1.product3',       $category1Children[ $product3->getId() ]->getTitle() );
+
+		$this->assertEquals( 'testAlbumsBaseTree root.category2',           $rootChildren[ $category2->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.product4',       $category2Children[ $product4->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.product5',       $category2Children[ $product5->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.product6',       $category2Children[ $product6->getId() ]->getTitle() );
+
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.category3',           $category2Children[ $category3->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.category3.product7',       $category3Children[ $product7->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.category3.product8',       $category3Children[ $product8->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsBaseTree root.category2.category3.product9',       $category3Children[ $product9->getId() ]->getTitle() );
+		//@formatter:on
 	}
 
 	/**
-	 * @inheritdoc
-	 * @throws \Yandex\Fotki\Exception\Api\DangerousAlbumDeleting
+	 * Будет воссоздана следующая структура:
+	 *
+	 * * testAlbumsDirectTree Root
+	 *   |- testAlbumsDirectTree root.category1
+	 *      |- testAlbumsDirectTree root.category1.product1
+	 *      |- testAlbumsDirectTree root.category1.product2
+	 *      |- testAlbumsDirectTree root.category1.product3
+	 *
+	 * @throws \Yandex\Fotki\Exception\Api\Album
 	 */
-	protected function tearDown() {
-		if ( FOTKI_API_DELETE_STUFF_AFTER_TESTS === false ) {
-			parent::tearDown();
+	public function testAlbumsDirectTree() {
+		$rootAlbum = $this->api->createAlbum( array( 'title' => 'testAlbumsDirectTree Root' ) )->load();
 
-			return;
-		}
+		$category1 = $this->api->createAlbum( array( 'title' => 'testAlbumsDirectTree root.category1' ), $rootAlbum->getId() )->load();
 
-		$api = $this->api;
-		/** @var \Yandex\Fotki\Api\Album[] $albums */
-		$albums = $api->getAlbumsCollection()->loadAll()->getList();
-		foreach ( $albums as $album ) {
-			if ( stripos( $album->getTitle(), 'test' ) === false ) {
-				continue;
-			}
+		$product1 = $this->api->createAlbum( array( 'title' => 'testAlbumsDirectTree root.category1.product1' ), $category1->getId() )->load();
+		$product2 = $this->api->createAlbum( array( 'title' => 'testAlbumsDirectTree root.category1.product2' ), $category1->getId() )->load();
+		$product3 = $this->api->createAlbum( array( 'title' => 'testAlbumsDirectTree root.category1.product3' ), $category1->getId() )->load();
 
-			try {
-				$api->deleteAlbum( $album->getId(), $api::DELETE_ALBUM_WITH_PHOTOS_YES, $api::DELETE_ALBUM_WITH_CHILDREN_ALBUMS_YES );
-			} catch ( Album $e ) {
-				if ( $e->getCode() == 404 ) {
-					continue;
-				} else {
-					throw new \RuntimeException( "", 0, $e );
-				}
-			}
-		}
+		$tree = $this->api->getAlbumsTree( $rootAlbum );
+		$this->assertEquals( 1, count( $tree ) );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1', $tree[ $category1->getId() ]->getTitle() );
 
-		/** @var \Yandex\Fotki\Api\Photo[] $photos */
-		$photos = $api->getPhotosCollection()->loadAll()->getList();
-		foreach ( $photos as $photo ) {
-			if ( stripos( $photo->getTitle(), 'test' ) === false ) {
-				continue;
-			}
+		$tree = $this->api->getAlbumsTree( intval( $rootAlbum->getId() ) );
+		$this->assertEquals( 1, count( $tree ) );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1', $tree[ $category1->getId() ]->getTitle() );
 
-			try {
-				$api->deletePhoto( $photo->getId() );
-			} catch ( Photo $e ) {
-				if ( $e->getCode() == 404 ) {
-					continue;
-				} else {
-					throw new \RuntimeException( "", 0, $e );
-				}
-			}
-		}
+		$tree = $this->api->getAlbumsTree( strval( $rootAlbum->getId() ) );
+		$this->assertEquals( 1, count( $tree ) );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1', $tree[ $category1->getId() ]->getTitle() );
 
-		parent::tearDown();
+		$tree = $this->api->getAlbumsTree( $category1 );
+		$this->assertEquals( 3, count( $tree ) );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1.product1', $tree[ $product1->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1.product2', $tree[ $product2->getId() ]->getTitle() );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1.product3', $tree[ $product3->getId() ]->getTitle() );
 	}
 }

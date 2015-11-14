@@ -7,12 +7,15 @@ namespace Yandex\Fotki\Api;
  * @author Dmitry Kuznetsov <kuznetsov2d@gmail.com>
  * @license The MIT License (MIT)
  * @see http://api.yandex.ru/fotki/doc/operations-ref/albums-collection-get.xml
- * @method \Yandex\Fotki\Api\AlbumsCollection setOrder(\string $order)
- * @method \Yandex\Fotki\Api\AlbumsCollection setLimit(\int $limit)
+ * @method \Yandex\Fotki\Api\AlbumsCollection setOrder( $order )
+ * @method \Yandex\Fotki\Api\AlbumsCollection setLimit( $limit )
  * @method \Yandex\Fotki\Api\Album[] getList()
  */
 class AlbumsCollection extends \Yandex\Fotki\Api\CollectionAbstract
 {
+
+	const MAX_LIMIT = 100;
+
     /**
      * @return self
      * @throws \Yandex\Fotki\Exception\Api\AlbumsCollection
