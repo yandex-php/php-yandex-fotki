@@ -430,8 +430,75 @@ class Api {
 	}
 
 	/**
+	 * Получение древовидной структуры альбомов.
+	 *
+	 * Если указать, структуру какого альбома отобразить, то
+	 * будут возвращены только его дочерние альбомы.
+	 *
+	 * <h1>ВАЖНО</h1>
+	 * Пожалуйста, не используйте метод \Yandex\Fotki\Api\Album::getChildren,
+	 * так как он отдаст только то, что было программно записано в \Yandex\Fotki\Api\Album::$_children.
+	 * Загрузки данных с сервера этот метод не производит.
+	 * Пока поддержка загрузки прямо из альбома не реализована из-за архитектурных сложностей.
+	 * Используйте этот метод - например:
+	 *
+	 * <code>
+	 * <?php
+	 * $album = $api->getAlbum(123456);
+	 *
+	 * // Вместо вызова этого кода:
+	 * // $children = $album->getChildren()
+	 *
+	 * // Используйте этот
+	 * $children = $api->getAlbumsTree($album)
+	 * </code>
+	 *
+	 * <h1>Примеры</h1>
+	 *
+	 * <h2>Получение полной иерархии</h2>
+	 * <code>
+	 * <?php
+	 * $rootAlbum1 = $api->getAlbum(123456);
+	 * $rootAlbum2 = $api->getAlbum(123457);
+	 *
+	 * // Иерерахия представляет из себя массив корневых альбомов.
+	 * $tree = $api->getAlbumsTree();
+	 *
+	 * echo $tree[$rootAlbum1->getId()]->getTitle();
+	 * echo $tree[$rootAlbum2->getId()]->getTitle();
+	 *
+	 * // Для каждого дочернего альбома можно получить список его дочерних альбомов.
+	 * $children = $tree[$rootAlbum1->getId()]->getChildren();
+	 * foreach($children as $id => $childAlbum){
+	 *     echo $childAlbum->getTitle();
+	 * }
+	 * ?>
+	 * </code>
+	 *
+	 *
+	 * <h2>Получение иерархии конкретного альбома</h2>
+	 * <code>
+	 * <?php
+	 * $parentAlbum = $api->getAlbum(123455);
+	 *
+	 * // Таким образом можно загрузить все дочерние альбомы указанного альбома
+	 * $children = $api->getAlbumsTree($parentAlbum);
+	 * // $children = $api->getAlbumsTree(123455); // Можно указывать и просто Id альбома
+	 *
+	 * // Для каждого дочернего альбома можно получить список его дочерних альбомов.
+	 * foreach($children as $id => $childAlbum){
+	 *     $totalChildren = count($childAlbum->getChildren();
+	 *     if($totalChildren){
+	 *         echo "{$childAlbum->getTitle()} имеет {$totalChildren} дочерних альбомов."
+	 *     }else{
+	 *         echo "{$childAlbum->getTitle()} не имеет дочерних альбомов."
+	 *     }
+	 * }
+	 * ?>
+	 * </code>
+	 *
 	 * @param Album|int|string|null $album Альбом, либо его ID.
-	 *                                     Если аргумент указан, то будут возвращен массив
+	 *                                     Если аргумент указан, то будет возвращен массив
 	 *                                     дочерних альбомов.
 	 *                                     Если передан null, то будет возвращено полное дерево
 	 *                                     коллекции альбомов
