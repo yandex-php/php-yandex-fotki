@@ -142,7 +142,7 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
         $result = $this->_data;
         $limit = (int)$this->_limit;
         if ($limit > 0) {
-            $result = array_slice($result, 0, $limit);
+	        $result = array_slice( $result, 0, $limit, true );
         }
         return $result;
     }
