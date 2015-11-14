@@ -337,6 +337,14 @@ class ApiTest extends BaseTestCase {
 		$this->assertEquals( 1, count( $tree ) );
 		$this->assertEquals( 'testAlbumsDirectTree root.category1', $tree[ $category1->getId() ]->getTitle() );
 
+		$tree = $this->api->getAlbumsTree( intval( $rootAlbum->getId() ) );
+		$this->assertEquals( 1, count( $tree ) );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1', $tree[ $category1->getId() ]->getTitle() );
+
+		$tree = $this->api->getAlbumsTree( strval( $rootAlbum->getId() ) );
+		$this->assertEquals( 1, count( $tree ) );
+		$this->assertEquals( 'testAlbumsDirectTree root.category1', $tree[ $category1->getId() ]->getTitle() );
+
 		$tree = $this->api->getAlbumsTree( $category1 );
 		$this->assertEquals( 3, count( $tree ) );
 		$this->assertEquals( 'testAlbumsDirectTree root.category1.product1', $tree[ $product1->getId() ]->getTitle() );
