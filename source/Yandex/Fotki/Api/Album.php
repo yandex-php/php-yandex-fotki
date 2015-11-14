@@ -292,21 +292,34 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	}
 
 	/**
-	 * @param Album|null $parent
+	 * @param Album|int|string|null $parent Альбом или его Id.
+	 *                                      Если null, то все ссылки на родителя за-null-яются
 	 *
 	 * @return $this
 	 * @throws \Yandex\Fotki\Exception\Api\Album
 	 */
 	public function setParent( $parent ) {
 
-		$isAlbum = $parent instanceof Album;
-		$isNull  = is_null( $parent );
-		$isValid = $isAlbum || $isNull;
+		$isAlbum   = $parent instanceof Album;
+		$isNumeric = is_numeric( $parent );
+		$isNull    = is_null( $parent );
+		$isValid   = $isAlbum || $isNumeric || $isNull;
 
 		if ( ! $isValid ) {
 			$instance = get_class( $this );
 			$type     = gettype( $parent );
 			throw new \Yandex\Fotki\Exception\Api\Album( "Parent must be an instance of {$instance} or null. {$type} given" );
+		}
+
+		if ( $isNumeric ) {
+			$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", trim( $this->_author ), intval( $parent ) );
+			/** @var Album $parent */
+			$parent = new $this( $this->_transport, $apiUrl );
+			$parent->load();
+
+			$this->_parent       = $parent;
+			$this->_parentId     = $parent->getId();
+			$this->_apiUrlParent = $parent->getApiUrl();
 		}
 
 		if ( $isAlbum ) {
@@ -329,6 +342,12 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	}
 
 	/**
+	 * todo: добавить загрузку детей прямо отсюда.
+	 * По-сути сюда нужно просто передать ссылку на Api и оттуда вызывать метод получения.
+	 * Но пока ни одна сущность не имеет ссылки на Api. И не понятно, хорошо ли ее добавлять.
+	 *
+	 * @see \Yandex\Fotki\Api::getAlbumsTree Пока не реализована загрузка детей прямиком из альбома,
+	 *                                       используйте этот метод Api.
 	 * @return Album[]
 	 */
 	public function getChildren() {
@@ -346,32 +365,15 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		$this->removeAllChildren();
 
 		foreach ( $children as $index => $child ) {
-			if ( is_null( $child ) ) {
-				continue;
-			}
-			if ( is_numeric( $child ) ) {
-				// Подразумевается, что здесь передан числовой id альбома
-				$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", trim( $this->_author ), intval( $child ) );
-				$child  = new $this( $this->_transport, $apiUrl );
-			}
-			if ( ! $child instanceof Album ) {
-				$instance = get_class( $this );
-				$type     = gettype( $child );
-				throw new \Yandex\Fotki\Exception\Api\Album( "\$children parameter must be an array of {$instance} instances. {$type} given at index {$index}" );
-			}
-
-			if ( ! $child->getId() ) {
-				$child->load();
-			}
-
-			$this->_children[ $child->getId() ] = $child;
+			$this->addChild( $child );
 		}
 
 		return $this;
 	}
 
 	/**
-	 * @param Album|null $child
+	 * @param Album|int|string|null $child Альбом или его Id.
+	 *                                     Если null, то ничего не происходит
 	 *
 	 * @return $this
 	 * @throws \Yandex\Fotki\Exception\Api\Album
@@ -380,10 +382,21 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		if ( is_null( $child ) ) {
 			return $this;
 		}
-		if ( ! $child instanceof Album ) {
+
+		$isAlbum   = $child instanceof Album;
+		$isNumeric = is_numeric( $child );
+		$isValid   = $isAlbum || $isNumeric;
+
+		if ( ! $isValid ) {
 			$instance = get_class( $this );
 			$type     = gettype( $child );
-			throw new \Yandex\Fotki\Exception\Api\Album( "\$child parameter must be an instance of {$instance}. {$type} given" );
+			throw new \Yandex\Fotki\Exception\Api\Album( "\$child parameter must be an instance of {$instance} or numeric. {$type} given" );
+		}
+
+		if ( $isNumeric ) {
+			$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", trim( $this->_author ), intval( $child ) );
+			/** @var Album $child */
+			$child = new $this( $this->_transport, $apiUrl );
 		}
 
 		if ( ! $child->getId() ) {
@@ -417,26 +430,17 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		}
 
 		$id = null;
-		if ( is_numeric( $child ) ) {
-			$id = intval( $id );
+		if ( $isNumeric ) {
+			$id = intval( $child );
 		}
-		if ( $child instanceof Album ) {
+		if ( $isAlbum ) {
 			if ( ! $child->getId() ) {
 				$child->load();
 			}
 			$id = intval( $child->getId() );
 		}
 
-		foreach ( $this->_children as $index => &$currentChild ) {
-			if ( ! $currentChild->getId() ) {
-				$currentChild->load();
-			}
-
-			if ( $currentChild->getId() == $id ) {
-				unset( $this->_children[ $index ] );
-				break;
-			}
-		}
+		unset( $this->_children[ $id ] );
 
 		return $this;
 	}
