@@ -4,6 +4,7 @@ namespace Yandex\Fotki;
 use Unirest\File;
 use Unirest\Request;
 use Yandex\Fotki\Api\Album;
+use Yandex\Fotki\Api\AlbumsCollection;
 use Yandex\Fotki\Api\Photo;
 use Yandex\Fotki\Exception\Api\DangerousAlbumDeleting;
 
@@ -201,7 +202,7 @@ class Api {
 	 *
 	 * @param int|null $parentId     Id родительского альбома. Если null, то альбом будет корневым.
 	 *
-	 * @return \Yandex\Fotki\Api\Album Незагруженный альбом. Чтобы продолжить с ним работать,
+	 * @return Album Незагруженный альбом. Чтобы продолжить с ним работать,
 	 * не забудьте вызвать метод \Yandex\Fotki\Api\Album::load
 	 *
 	 * @throws \Yandex\Fotki\Exception\Api\Album Если не удалось добавить альбом
@@ -244,11 +245,11 @@ class Api {
 	/**
 	 * @param string|int $id
 	 *
-	 * @return \Yandex\Fotki\Api\Album
+	 * @return Album
 	 */
 	public function getAlbum( $id ) {
 		$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", $this->_login, trim( $id ) );
-		$album  = new \Yandex\Fotki\Api\Album( $this->_transport, $apiUrl );
+		$album  = new Album( $this->_transport, $apiUrl );
 
 		return $album;
 	}
@@ -280,9 +281,9 @@ class Api {
 	 * ?>
 	 * </code>
 	 *
-	 * @param \Yandex\Fotki\Api\Album $album Альбом, который нужно обновить
+	 * @param Album $album Альбом, который нужно обновить
 	 *
-	 * @return \Yandex\Fotki\Api\Album Обновленный альбом. Чтобы продолжить с ним работать,
+	 * @return Album Обновленный альбом. Чтобы продолжить с ним работать,
 	 * не забудьте вызвать метод \Yandex\Fotki\Api\Album::load
 	 *
 	 * @throws \Yandex\Fotki\Exception\Api\Album Если не удалось обновить альбом
@@ -330,7 +331,7 @@ class Api {
 	 * ?>
 	 * </code>
 	 *
-	 * <h2>Удаление альбома вместо с дочерними фотографиями</h2>
+	 * <h2>Удаление альбома вместе с дочерними фотографиями</h2>
 	 * Обратите внимание на то, что поиск фотографий будет производиться
 	 * ТОЛЬКО в указанном альбоме, но не в его дочерних альбомах.
 	 * Если внутри будет альбом "Неразобранное", то фотографии не будут найдены.
@@ -341,7 +342,7 @@ class Api {
 	 * ?>
 	 * </code>
 	 *
-	 * <h2>Удаление альбома вместо с дочерними фотографиями и дочерними альбомами</h2>
+	 * <h2>Удаление альбома вместе с дочерними фотографиями и дочерними альбомами</h2>
 	 * Самый опасный вариант вызова - можно удалить ВСЕ данные.
 	 * Дважды подумайте перед вызовом - если вы передатите не тот ID,
 	 * может удалиться вся ваша коллекция, а вас будут презирать и порицать.
@@ -426,6 +427,57 @@ class Api {
 		$albumsCollection = new \Yandex\Fotki\Api\AlbumsCollection( $this->_transport, $apiUrl );
 
 		return $albumsCollection;
+	}
+
+	/**
+	 * @param Album|int|string|null $album Альбом, либо его ID.
+	 *                                     Если аргумент указан, то будут возвращен массив
+	 *                                     дочерних альбомов.
+	 *                                     Если передан null, то будет возвращено полное дерево
+	 *                                     коллекции альбомов
+	 *
+	 * @return Album[]
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 */
+	public function getAlbumsTree( $album = null ) {
+		$albumId = null;
+		if ( is_numeric( $album ) ) {
+			$albumId = intval( $album );
+		} elseif ( $album instanceof Album ) {
+			if ( ! $album->getId() ) {
+				$album->load();
+			}
+
+			$albumId = $album->getId();
+		} else {
+			$instance = '\Yandex\Fotki\Api\Album';
+			$type     = gettype( $album );
+			throw new \Yandex\Fotki\Exception\Api\Album( "\$album must be an instance of {$instance} or numeric. {$type} given" );
+		}
+
+		/** @var Album[] $albumsArray */
+		$albumsArray = $this->getAlbumsCollection()->setLimit( AlbumsCollection::MAX_LIMIT )->loadAll()->getList();
+		$tree        = array();
+		$rootIds     = array();
+
+		foreach ( $albumsArray as $id => $albumItem ) {
+			if ( $albumItem->getParentId() ) {
+				$albumsArray[ $albumItem->getParentId() ]->addChild( $albumItem );
+				$albumsArray[ $id ]->setParent( $albumsArray[ $albumItem->getParentId() ] );
+			} else {
+				$rootIds[] = $id;
+			}
+		}
+
+		if ( $albumId ) {
+			$tree = $albumsArray[ $albumId ]->getChildren();
+		} else {
+			foreach ( $rootIds as $rootId ) {
+				$tree[] = $albumsArray[ $rootId ];
+			}
+		}
+
+		return $tree;
 	}
 
 	/**

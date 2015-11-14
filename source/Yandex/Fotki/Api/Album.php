@@ -9,8 +9,8 @@ use Yandex\Fotki\Exception\InvalidCall;
  * @author  Dmitry Kuznetsov <kuznetsov2d@gmail.com>
  * @license The MIT License (MIT)
  * @see     http://api.yandex.ru/fotki/doc/operations-ref/album-get.xml
- * @method \Yandex\Fotki\Api\Album setOrder( $order )
- * @method \Yandex\Fotki\Api\Album setLimit( $limit )
+ * @method Album setOrder( $order )
+ * @method Album setLimit( $limit )
  * @method \Yandex\Fotki\Api\Photo[] getList()
  */
 class Album extends \Yandex\Fotki\Api\CollectionAbstract {
@@ -42,6 +42,14 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	 * @var int Идентификатор родительского альбома
 	 */
 	protected $_parentId;
+	/**
+	 * @var Album|null Родительский альбом
+	 */
+	protected $_parent;
+	/**
+	 * @var Album[] Массив дочерних альбомов
+	 */
+	protected $_children = array();
 	/**
 	 * @var string Логин пользователя на Яндекс.Фотках
 	 */
@@ -249,6 +257,195 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		} else {
 			$this->_parentId = (int) $parentId;
 		}
+
+		return $this;
+	}
+
+	/**
+	 * @return null|Album
+	 */
+	public function getParent() {
+		// Если альбом задан - просто вернем его
+		if ( $this->_parent instanceof Album ) {
+			return $this->_parent;
+		}
+
+		// Если ссылок на альбом нет, вернем null
+		if ( ! ( $this->_parentId || $this->_apiUrlParent ) ) {
+			return null;
+		}
+
+		$parent = null;
+
+		if ( $this->_apiUrlParent ) {
+			// Если альбом не загружен, но на него есть ссылка, загрузим его
+			$parent = new $this( $this->_transport, $this->_apiUrlParent );
+		} elseif ( $this->_parentId ) {
+			// Если ссылки на альбом нет, но есть его ID, попытаемся найти его
+			$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", trim( $this->_author ), intval( $this->_parentId ) );
+			$parent = new $this( $this->_transport, $apiUrl );
+		}
+
+		$this->setParent( $parent );
+
+		return $this->_parent;
+	}
+
+	/**
+	 * @param Album|null $parent
+	 *
+	 * @return $this
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 */
+	public function setParent( $parent ) {
+
+		$isAlbum = $parent instanceof Album;
+		$isNull  = is_null( $parent );
+		$isValid = $isAlbum || $isNull;
+
+		if ( ! $isValid ) {
+			$instance = get_class( $this );
+			$type     = gettype( $parent );
+			throw new \Yandex\Fotki\Exception\Api\Album( "Parent must be an instance of {$instance} or null. {$type} given" );
+		}
+
+		if ( $isAlbum ) {
+			if ( ! $parent->getId() ) {
+				$parent->load();
+			}
+
+			$this->_parent       = $parent;
+			$this->_parentId     = $parent->getId();
+			$this->_apiUrlParent = $parent->getApiUrl();
+		}
+
+		if ( $isNull ) {
+			$this->_parent       = null;
+			$this->_parentId     = null;
+			$this->_apiUrlParent = null;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return Album[]
+	 */
+	public function getChildren() {
+		return $this->_children;
+	}
+
+	/**
+	 * @param Album[]|Album|int[]|int|string[]|string $children
+	 *
+	 * @return $this
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 */
+	public function setChildren( $children ) {
+		$children = (array) $children;
+		$this->removeAllChildren();
+
+		foreach ( $children as $index => $child ) {
+			if ( is_null( $child ) ) {
+				continue;
+			}
+			if ( is_numeric( $child ) ) {
+				// Подразумевается, что здесь передан числовой id альбома
+				$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/album/%s/?format=json", trim( $this->_author ), intval( $child ) );
+				$child  = new $this( $this->_transport, $apiUrl );
+			}
+			if ( ! $child instanceof Album ) {
+				$instance = get_class( $this );
+				$type     = gettype( $child );
+				throw new \Yandex\Fotki\Exception\Api\Album( "\$children parameter must be an array of {$instance} instances. {$type} given at index {$index}" );
+			}
+
+			if ( ! $child->getId() ) {
+				$child->load();
+			}
+
+			$this->_children[ $child->getId() ] = $child;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param Album|null $child
+	 *
+	 * @return $this
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 */
+	public function addChild( $child ) {
+		if ( is_null( $child ) ) {
+			return $this;
+		}
+		if ( ! $child instanceof Album ) {
+			$instance = get_class( $this );
+			$type     = gettype( $child );
+			throw new \Yandex\Fotki\Exception\Api\Album( "\$child parameter must be an instance of {$instance}. {$type} given" );
+		}
+
+		if ( ! $child->getId() ) {
+			$child->load();
+		}
+
+		$this->_children[ $child->getId() ] = $child;
+
+		return $this;
+	}
+
+	/**
+	 * @param Album|int|string|null $child Либо альбом, либо его id
+	 *
+	 * @return $this
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 */
+	public function removeChild( $child ) {
+		if ( is_null( $child ) ) {
+			return $this;
+		}
+
+		$isNumeric = is_numeric( $child );
+		$isAlbum   = $child instanceof Album;
+		$isValid   = $isNumeric || $isAlbum;
+
+		if ( ! $isValid ) {
+			$instance = get_class( $this );
+			$type     = gettype( $child );
+			throw new \Yandex\Fotki\Exception\Api\Album( "\$child parameter must be an instance of {$instance} or numeric. {$type} given" );
+		}
+
+		$id = null;
+		if ( is_numeric( $child ) ) {
+			$id = intval( $id );
+		}
+		if ( $child instanceof Album ) {
+			if ( ! $child->getId() ) {
+				$child->load();
+			}
+			$id = intval( $child->getId() );
+		}
+
+		foreach ( $this->_children as $index => &$currentChild ) {
+			if ( ! $currentChild->getId() ) {
+				$currentChild->load();
+			}
+
+			if ( $currentChild->getId() == $id ) {
+				unset( $this->_children[ $index ] );
+				break;
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function removeAllChildren() {
+		$this->_children = array();
 
 		return $this;
 	}
