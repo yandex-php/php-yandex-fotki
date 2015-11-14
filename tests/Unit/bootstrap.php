@@ -4,6 +4,7 @@
  * Email: flinnraider@yandex.ru
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/BaseTestCase.php';
 
 $config = require __DIR__ . '/config.php';
 
