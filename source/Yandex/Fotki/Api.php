@@ -449,7 +449,7 @@ class Api {
 			}
 
 			$albumId = $album->getId();
-		} else {
+		} elseif ( ! is_null( $album ) ) {
 			$instance = '\Yandex\Fotki\Api\Album';
 			$type     = gettype( $album );
 			throw new \Yandex\Fotki\Exception\Api\Album( "\$album must be an instance of {$instance} or numeric. {$type} given" );
@@ -473,7 +473,7 @@ class Api {
 			$tree = $albumsArray[ $albumId ]->getChildren();
 		} else {
 			foreach ( $rootIds as $rootId ) {
-				$tree[] = $albumsArray[ $rootId ];
+				$tree[ $rootId ] = $albumsArray[ $rootId ];
 			}
 		}
 
