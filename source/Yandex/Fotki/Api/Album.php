@@ -372,11 +372,16 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	}
 
 	/**
-	 * @param Album|int|string $albumId Альбом, который ищем, либо его ID
+	 * @param Album|int|string|null $albumId Альбом, который ищем, либо его ID.
+	 *                                       Null в качестве заглушки
 	 *
 	 * @throws \Yandex\Fotki\Exception\Api\Album
 	 */
 	public function contains( $albumId ) {
+		if ( is_null( $albumId ) ) {
+			return false;
+		}
+
 		$isAlbum   = $albumId instanceof Album;
 		$isNumeric = is_numeric( $albumId );
 		$isValid   = $isAlbum || $isNumeric;
