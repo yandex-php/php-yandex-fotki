@@ -7,7 +7,9 @@
 namespace Yandex\Fotki\Tests\Unit\Api;
 
 
+use Yandex\Fotki\Api\Photo;
 use Yandex\Fotki\Tests\Unit\BaseTestCase;
+use Yandex\Fotki\Tests\Unit\Helpers\PhotoHelper;
 
 class AlbumTest extends BaseTestCase {
 
@@ -209,5 +211,60 @@ class AlbumTest extends BaseTestCase {
 		$this->assertEquals( false, $children[ $child2->getId() ]->contains( $child1 ) );
 		$this->assertEquals( false, $child2Children[ $child3->getId() ]->contains( $child2 ) );
 
+	}
+
+	/**
+	 * todo Не протестирован вызов при помощи строки с названием функции
+	 *
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 * @throws \Yandex\Fotki\Exception\Api\Photo
+	 */
+	public function testAlbumGetList() {
+		$album = $this->api->createAlbum( array(
+			'title' => 'testAlbumGetList Album',
+		) )->load();
+
+		//@formatter:off
+		$photo1 = $this->api->createPhoto( array( 'image' => FOTKI_API_ASSETS . '/test.png', 'title' => 'testAlbumGetList Photo1' ), $album->getId() )->load();
+		$photo2 = $this->api->createPhoto( array( 'image' => FOTKI_API_ASSETS . '/test.png', 'title' => 'testAlbumGetList Photo2' ), $album->getId() )->load();
+		$photo3 = $this->api->createPhoto( array( 'image' => FOTKI_API_ASSETS . '/test.png', 'title' => 'testAlbumGetList Photo3' ), $album->getId() )->load();
+		//@formatter:on
+
+		// Загрузка альбома с обновленной информацией о его фото
+		$album = $this->api->getAlbum( $album->getId() )->load();
+
+		//region static call
+		\Yandex\Fotki\Tests\Unit\Helpers\PhotoHelper::$filterTitleStatic = 'testAlbumGetList Photo1';
+
+		$photos = $album->getList( array(
+			'\Yandex\Fotki\Tests\Unit\Helpers\PhotoHelper',
+			'filterStatic'
+		) );
+		$this->assertEquals( 1, count( $photos ) );
+		$this->assertEquals( $photo1->getTitle(), $photos[ $photo1->getId() ]->getTitle() );
+		//endregion
+
+
+		//region Dynamic call
+		$helper              = new PhotoHelper();
+		$helper->filterTitle = 'testAlbumGetList Photo2';
+
+		$photos = $album->getList( array(
+			$helper,
+			'filter'
+		) );
+
+		$this->assertEquals( 1, count( $photos ) );
+		$this->assertEquals( $photo2->getTitle(), $photos[ $photo2->getId() ]->getTitle() );
+		//endregion
+
+
+		//region Closure call
+		$photos = $album->getList( function ( Photo $photo ) {
+			return $photo->getTitle() == 'testAlbumGetList Photo3';
+		} );
+		$this->assertEquals( 1, count( $photos ) );
+		$this->assertEquals( $photo3->getTitle(), $photos[ $photo3->getId() ]->getTitle() );
+		//endregion
 	}
 }
