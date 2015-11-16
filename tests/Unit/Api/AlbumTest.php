@@ -187,4 +187,26 @@ class AlbumTest extends BaseTestCase {
 
 		$this->assertEquals( 0, count( $parent->getChildren() ) );
 	}
+
+	public function testAlbumHasChildrenWithId() {
+		$parent = $this->api->createAlbum( array( 'title' => 'testAlbumHasChildrenWithId Parent' ) )->load();
+		$child1 = $this->api->createAlbum( array( 'title' => 'testAlbumHasChildrenWithId Parent.Child1' ), $parent->getId() )->load();
+		$child2 = $this->api->createAlbum( array( 'title' => 'testAlbumHasChildrenWithId Parent.Child2' ), $parent->getId() )->load();
+		$child3 = $this->api->createAlbum( array( 'title' => 'testAlbumHasChildrenWithId Parent.Child2.Child3' ), $child2->getId() )->load();
+
+		$parent->setChildren( $this->api->getAlbumsTree( $parent ) );
+
+		$this->assertEquals( false, $parent->contains( $parent ) );
+		$this->assertEquals( true, $parent->contains( $child1 ) );
+		$this->assertEquals( true, $parent->contains( intval( $child2->getId() ) ) );
+		$this->assertEquals( true, $parent->contains( strval( $child3->getId() ) ) );
+
+		$children       = $parent->getChildren();
+		$child2Children = $children[ $child2->getId() ]->getChildren();
+
+		$this->assertEquals( false, $children[ $child1->getId() ]->contains( $parent ) );
+		$this->assertEquals( false, $children[ $child2->getId() ]->contains( $child1 ) );
+		$this->assertEquals( false, $child2Children[ $child3->getId() ]->contains( $child2 ) );
+
+	}
 }

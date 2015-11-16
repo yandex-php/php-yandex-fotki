@@ -308,7 +308,7 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		if ( ! $isValid ) {
 			$instance = get_class( $this );
 			$type     = gettype( $parent );
-			throw new \Yandex\Fotki\Exception\Api\Album( "Parent must be an instance of {$instance} or null. {$type} given" );
+			throw new \Yandex\Fotki\Exception\Api\Album( "Parent must be an instance of {$instance} or numeric or null. {$type} given" );
 		}
 
 		if ( $isNumeric ) {
@@ -369,6 +369,59 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @param Album|int|string $albumId Альбом, который ищем, либо его ID
+	 *
+	 * @throws \Yandex\Fotki\Exception\Api\Album
+	 */
+	public function contains( $albumId ) {
+		$isAlbum   = $albumId instanceof Album;
+		$isNumeric = is_numeric( $albumId );
+		$isValid   = $isAlbum || $isNumeric;
+
+		if ( ! $isValid ) {
+			$instance = get_class( $this );
+			$type     = gettype( $albumId );
+			throw new \Yandex\Fotki\Exception\Api\Album( "AlbumId must be an instance of {$instance} or numeric. {$type} given" );
+		}
+
+		if ( $albumId instanceof Album ) {
+			if ( ! $albumId->getId() ) {
+				$albumId->load();
+			}
+			$albumId = intval( $albumId->getId() );
+		}
+		if ( $isNumeric ) {
+			$albumId = intval( $albumId );
+		}
+
+		/**
+		 * @param \Yandex\Fotki\Api\Album[] $children
+		 *
+		 * @return bool
+		 */
+		$iterator = function ( $children ) use ( &$iterator, $albumId ) {
+
+			foreach ( $children as $child ) {
+				if ( $child->getId() == $albumId ) {
+					return true;
+				}
+			}
+
+			foreach ( $children as $child ) {
+				if ( count( $child->getChildren() ) ) {
+					if ( $iterator( $child->getChildren() ) ) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		};
+
+		return $iterator( $this->getChildren() );
 	}
 
 	/**
