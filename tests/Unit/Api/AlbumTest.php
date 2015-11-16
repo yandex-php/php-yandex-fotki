@@ -196,6 +196,7 @@ class AlbumTest extends BaseTestCase {
 
 		$parent->setChildren( $this->api->getAlbumsTree( $parent ) );
 
+		$this->assertEquals( false, $parent->contains( null ) );
 		$this->assertEquals( false, $parent->contains( $parent ) );
 		$this->assertEquals( true, $parent->contains( $child1 ) );
 		$this->assertEquals( true, $parent->contains( intval( $child2->getId() ) ) );
