@@ -123,7 +123,6 @@ class ApiTest extends BaseTestCase {
 	}
 
 	public function testCreatePhoto() {
-		$login = FOTKI_API_LOGIN;
 		$photo = $this->api->createPhoto( array(
 			'image'             => FOTKI_API_ASSETS . '/test.png',
 			'title'             => 'testCreatePhoto Title',
@@ -136,6 +135,7 @@ class ApiTest extends BaseTestCase {
 			'tags'              => array( 'tag-1', 'tag-2' ),
 		) )->load();
 
+
 		$this->assertEquals( 'testCreatePhoto Title', $photo->getTitle() );
 		$this->assertEquals( 'testCreatePhoto Summary', $photo->getSummary() );
 //		$this->assertEquals( true, $photo->isAdult() ); // todo проверить, почему флаг не устанавливается
@@ -143,12 +143,17 @@ class ApiTest extends BaseTestCase {
 		$this->assertEquals( true, $photo->isHideOriginal() );
 		$this->assertEquals( 'friends', $photo->getAccess() );
 		$this->assertEquals( array_map( 'intval', array( 55.12, 38.24 ) ), array_map( 'intval', $photo->getGeo() ) );
+
+		$titles = array_map( function ( Api\Tag $tag ) {
+			return $tag->getTitle();
+		}, $photo->getTags() );
+		usort( $titles, function ( $a, $b ) {
+			return strnatcmp( $a, $b );
+		} );
+
 		$this->assertEquals(
-			implode( ', ', array(
-				"http://api-fotki.yandex.ru/api/users/{$login}/tag/tag-2/",
-				"http://api-fotki.yandex.ru/api/users/{$login}/tag/tag-1/"
-			) )
-			, $photo->getTags()
+			implode( ', ', array( 'tag-1', 'tag-2' ) ),
+			implode( ', ', $titles )
 		);
 	}
 

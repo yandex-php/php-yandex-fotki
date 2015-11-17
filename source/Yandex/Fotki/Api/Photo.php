@@ -140,7 +140,7 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 	 */
 	protected $_content;
 	/**
-	 * @var string
+	 * @var Tag[]
 	 */
 	protected $_tags;
 
@@ -220,23 +220,152 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 	}
 
 	/**
-	 * @return string
+	 * @return Tag[]
 	 */
 	public function getTags() {
 		return $this->_tags;
 	}
 
 	/**
-	 * @param string $tags
+	 * Функция может принимать сдел. параметры:
 	 *
-	 * @return self
+	 * 1) Название тега (или массив названий) (или )
+	 * 2) Url тега (или массив Url)
+	 * 3) Объект тега (или массив Объектов тегов)
+	 * 5) Коллекция тегов (или массив коллекций тегов)
+	 *
+	 * @param TagsCollection[]|TagsCollection|Tag[]|Tag|string[]|string|array $tags
+	 *
+	 * @return $this
 	 */
 	public function setTags( $tags ) {
-		if ( is_array( $tags ) || $tags instanceof \ArrayAccess ) {
-			$this->_tags = implode( ', ', $tags );
-		} else {
-			$this->_tags = (string) $tags;
+		$transport = $this->_transport;
+		$author    = $this->_author;
+
+		$this->_tags = array();
+
+		/**
+		 * @param TagsCollection|Tag|array|string $tag
+		 *
+		 * @return Tag[]
+		 * @throws \Yandex\Fotki\Exception\Api\Album
+		 */
+		$convertToTag = function ( $tag ) use ( $transport, $author ) {
+			if ( is_null( $tag ) ) {
+				return array();
+			}
+
+			/**
+			 * @param string $url
+			 *
+			 * @return string
+			 */
+			$rebuildUrl = function ( $url ) {
+				$parts = parse_url( $url );
+
+				$pathParts     = explode( '/', $parts['path'] );
+				$pathParts     = array_map( function ( $part ) {
+					return urlencode( trim( urldecode( $part ) ) );
+				}, $pathParts );
+				$parts['path'] = implode( '/', $pathParts );
+
+				$scheme = strval( isset( $parts['scheme'] ) ? $parts['scheme'] : 'http' );
+				$host   = strval( $parts['host'] );
+				$path   = strval( $parts['path'] );
+
+				return "{$scheme}://{$host}{$path}?format=json";
+			};
+
+			$isTitle      = is_string( $tag );
+			$isUrl        = $isTitle && preg_match( '@^http(s)?://.*@', $tag ) === 1;
+			$isCollection = $tag instanceof TagsCollection;
+			$isTag        = $tag instanceof Tag;
+			$isValid      = $isUrl || $isTitle || $isCollection || $isTag;
+
+			if ( ! $isValid ) {
+				$allowedFormats = implode( ' or ', array(
+					'\Yandex\Fotki\Api\TagsCollection',
+					'\Yandex\Fotki\Api\Tag',
+					'string',
+					'null',
+				) );
+
+				$type = gettype( $tag );
+				throw new \Yandex\Fotki\Exception\Api\Album(
+					"Tag must have a type {$allowedFormats}. {$type} given"
+				);
+			}
+
+			/**
+			 * Если задан Url, то Title тега будет извлечен и декодирован из Url.
+			 */
+			if ( $isUrl ) {
+				$pattern = '@^.*/tag/(?<title>[^/]*)@';
+
+				$matchResult = preg_match( $pattern, $tag, $matches );
+				if ( ! $matchResult || ! isset( $matches['title'] ) ) {
+					throw new \Yandex\Fotki\Exception\Api\Album( "Cannot recognize title in given url '{$tag}' with following patten '{$pattern}'" );
+				}
+
+				$title = urldecode( $matches['title'] );
+
+				$tag = new \Yandex\Fotki\Api\Tag( $transport, $rebuildUrl( $tag ) );
+				$tag->setTitle( trim( $title ) );
+				$tag->setAuthor( $author );
+
+				return array( $tag );
+			}
+			/**
+			 * Если передано название тега, то по названию восстановим Url,
+			 * и запишем название в объект.
+			 */
+			if ( $isTitle ) {
+				$title  = trim( $tag );
+				$apiUrl = sprintf( "http://api-fotki.yandex.ru/api/users/%s/tag/%s/?format=json", $author, urlencode( $title ) );
+
+				$tag = new \Yandex\Fotki\Api\Tag( $transport, $apiUrl );
+				$tag->setTitle( $title );
+				$tag->setAuthor( $author );
+
+				return array( $tag );
+			}
+			/**
+			 * Если передана коллекция, просто достанем из нее все значения.
+			 * Заметим, что, если коллекция не была загружена, из нее будет нечего доставать.
+			 */
+			if ( $isCollection ) {
+				return $tag->getList();
+			}
+			/**
+			 * Если передали тег, то оставляем его без изменений
+			 */
+			if ( $isTag ) {
+				return array( $tag );
+			}
+
+			return array();
+		};
+
+		$flattenedTags = array();
+		$tags          = is_array( $tags ) ? $tags : array( $tags );
+		foreach ( $tags as $index => $tag ) {
+			/**
+			 * На случай, если теги указаны через запятую, разобьем их
+			 */
+			if ( is_string( $tag ) ) {
+				$tag = explode( ',', $tag );
+				$tag = array_map( 'trim', $tag );
+			}
+
+			$flattenedTags = array_merge( $flattenedTags, is_array( $tag ) ? $tag : array( $tag ) );
 		}
+		$tags = $flattenedTags;
+
+		foreach ( $tags as $tag ) {
+			$this->_tags = array_merge( $this->_tags, $convertToTag( $tag ) );
+		}
+
+		$this->_tags = array_values( $this->_tags );
 
 		return $this;
 	}
@@ -786,17 +915,18 @@ XML;
 				throw new InvalidCall( "'Author' parameter must be set to create the tags" );
 			}
 
-			$tags = array_map( 'trim', explode( ',', $this->_tags ) );
-			foreach ( $tags as $tag ) {
+			foreach ( $this->_tags as $tag ) {
 				$scheme = sprintf( 'http://api-fotki.yandex.ru/api/users/%s/tags/', $this->_author );
 
 				$category = $xml->addChild( 'category', null );
-				$category->addAttribute( 'term', $tag );
+				/**
+				 * Так как документ передается в utf-8, с кодировкой проблем не будет
+				 */
+				$category->addAttribute( 'term', trim( strip_tags( $tag->getTitle() ) ) );
 				$category->addAttribute( 'scheme', $scheme );
 			}
 		}
 
-		//todo tags
 		return $xml;
 	}
 }

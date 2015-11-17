@@ -111,6 +111,13 @@ class Api {
 	}
 
 	/**
+	 * @return Transport
+	 */
+	public function getTransport() {
+		return $this->_transport;
+	}
+
+	/**
 	 * Загрузка сервисного документа
 	 * @return self
 	 */

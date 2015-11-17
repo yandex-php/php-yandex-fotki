@@ -11,7 +11,6 @@ use Yandex\Fotki\Exception\InvalidCall;
  * @see     http://api.yandex.ru/fotki/doc/operations-ref/album-get.xml
  * @method Album setOrder( $order )
  * @method Album setLimit( $limit )
- * @method \Yandex\Fotki\Api\Photo[] getList()
  */
 class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	/**
@@ -90,6 +89,68 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 	 * @var string Пароль к альбому
 	 */
 	protected $_password;
+
+	/**
+	 * <h1>Примеры</h1>
+	 * <h2>Пример с Closure:</h2>
+	 * <code>
+	 * <?php
+	 * $album->getList(function(Photo $photo){
+	 *     return $photo->getTitle() == 'my-title';
+	 * });
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Пример с вызовом метода:</h2>
+	 * <code>
+	 * <?php
+	 * class PhotosHelper{
+	 *     public function filter(Photo $photo){
+	 *         return $photo->getTitle() == 'my-title';
+	 *     }
+	 * }
+	 *
+	 * $helper = new PhotosHelper();
+	 * $album->getList([$helper, 'filter']);
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Пример со статическим вызовом метода:</h2>
+	 * <code>
+	 * <?php
+	 * class PhotosHelper{
+	 *     public static function filter(Photo $photo){
+	 *         return $photo->getTitle() == 'my-title';
+	 *     }
+	 * }
+	 *
+	 * $album->getList(['PhotosHelper', 'filter']);
+	 * ?>
+	 * </code>
+	 *
+	 * <h2>Пример с функцией:</h2>
+	 * <code>
+	 * <?php
+	 * function filter(Photo $photo){
+	 *     return $photo->getTitle() == 'my-title';
+	 * }
+	 *
+	 * $album->getList('filter');
+	 * ?>
+	 * </code>
+	 *
+	 * @param callback $filter Функция-фильтр
+	 *
+	 * @return Photo[]
+	 */
+	public function getList( $filter = null ) {
+		$list = parent::getList();
+
+		return $filter
+			? array_filter( $list, $filter )
+			: $list;
+	}
+
 
 	/**
 	 * @return string
