@@ -99,6 +99,20 @@ class Tag extends \Yandex\Fotki\ApiAbstract
         return $this->_author;
     }
 
+	/**
+	 * @param string $author
+	 */
+	public function setAuthor( $author ) {
+		$this->_author = strval( $author );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getApiUrl() {
+		return $this->_apiUrl;
+	}
+
     /**
      * @param string|null $format В каком формате возвращать время (null = timestamp)
      * @return int|string
@@ -131,6 +145,17 @@ class Tag extends \Yandex\Fotki\ApiAbstract
         return $this->_title;
     }
 
+	/**
+	 * @param string $title
+	 *
+	 * @return $this
+	 */
+	public function setTitle( $title ) {
+		$this->_title = strval( $title );
+
+		return $this;
+	}
+
     /**
      * @return self
      * @throws \Yandex\Fotki\Exception\Api\Tag
@@ -157,7 +182,7 @@ class Tag extends \Yandex\Fotki\ApiAbstract
             $this->_atomId = (string)$entry['id'];
         }
         if (isset($entry['title'])) {
-            $this->_title = (string)$entry['title'];
+	        $this->setTitle( $entry['title'] );
         }
         if (isset($entry['updated'])) {
             $this->_dateUpdated = (string)$entry['updated'];
@@ -178,7 +203,7 @@ class Tag extends \Yandex\Fotki\ApiAbstract
             $this->_author = (string)$entry['authors'][0]['name'];
         }
         if (isset($entry['author'])) {
-            $this->_author = (string)$entry['author'];
+	        $this->setAuthor( $entry['author'] );
         }
         return $this;
     }
