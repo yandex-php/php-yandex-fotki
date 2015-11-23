@@ -11,10 +11,6 @@ use Yandex\Fotki\Tests\Unit\BaseTestCase;
 
 class PhotoTest extends BaseTestCase {
 
-	/**
-	 * todo: убедиться, что теги для фото сохраняются
-	 * todo: проверить все текущие операции по CRUD, где задействованы теги
-	 */
 	public function testPhotoSetTags() {
 		$login = FOTKI_API_LOGIN;
 
@@ -169,4 +165,52 @@ class PhotoTest extends BaseTestCase {
 		$this->assertEquals( $tag2->getApiUrl(), $tags[1]->getApiUrl() );
 
 	}
+
+	public function testPhotoGetMaxAvailableImg() {
+		$photo = $this->api->createPhoto( array(
+			'image' => FOTKI_API_ASSETS . '/test.png',
+			'title' => 'testPhotoGetMaxAvailableImg',
+		) )->load();
+
+		$img = $photo->getMaxAvailableImg();
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_L ), $img['href'] );
+		$this->assertEquals( 350, $img['width'] );
+		$this->assertEquals( 150, $img['height'] );
+
+		$img = $photo->getMaxAvailableImg( true );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_ORIGINAL ), $img['href'] );
+		$this->assertEquals( 350, $img['width'] );
+		$this->assertEquals( 150, $img['height'] );
+	}
+
+	public function testPhotoGetMaxAvailableImgHref() {
+		$photo = $this->api->createPhoto( array(
+			'image' => FOTKI_API_ASSETS . '/test.png',
+			'title' => 'testPhotoGetMaxAvailableImgHref',
+		) )->load();
+
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_L ), $photo->getMaxAvailableImgHref() );
+		$this->assertEquals( $photo->getImgHref( $photo::SIZE_ORIGINAL ), $photo->getMaxAvailableImgHref( true ) );
+	}
+
+	public function testPhotoGetMaxAvailableImgWidth() {
+		$photo = $this->api->createPhoto( array(
+			'image' => FOTKI_API_ASSETS . '/test.png',
+			'title' => 'testPhotoGetMaxAvailableImgHref',
+		) )->load();
+
+		$this->assertEquals( 350, $photo->getMaxAvailableImgWidth() );
+		$this->assertEquals( 350, $photo->getMaxAvailableImgWidth( true ) );
+	}
+
+	public function testPhotoGetMaxAvailableImgHeight() {
+		$photo = $this->api->createPhoto( array(
+			'image' => FOTKI_API_ASSETS . '/test.png',
+			'title' => 'testPhotoGetMaxAvailableImgHref',
+		) )->load();
+
+		$this->assertEquals( 150, $photo->getMaxAvailableImgHeight() );
+		$this->assertEquals( 150, $photo->getMaxAvailableImgHeight( true ) );
+	}
+
 }

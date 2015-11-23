@@ -588,6 +588,69 @@ class Photo extends \Yandex\Fotki\ApiAbstract {
 	}
 
 	/**
+	 * @param bool $includeOriginal
+	 *
+	 * @return array|null
+	 */
+	public function getMaxAvailableImg( $includeOriginal = false ) {
+		$nicksMap = array(
+			self::SIZE_XXXL,
+			self::SIZE_XXL,
+			self::SIZE_XL,
+			self::SIZE_L,
+			self::SIZE_M,
+			self::SIZE_S,
+			self::SIZE_XS,
+			self::SIZE_XXS,
+			self::SIZE_XXXS,
+		);
+		if ( $includeOriginal ) {
+			array_unshift( $nicksMap, self::SIZE_ORIGINAL );
+		}
+
+		foreach ( $nicksMap as $nick ) {
+			if ( isset( $this->_img[ $nick ] ) ) {
+				return $this->_img[ $nick ];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param bool $includeOriginal
+	 *
+	 * @return string|null
+	 */
+	public function getMaxAvailableImgHref( $includeOriginal = false ) {
+		$img = $this->getMaxAvailableImg( $includeOriginal );
+
+		return $img ? $img['href'] : null;
+	}
+
+	/**
+	 * @param bool $includeOriginal
+	 *
+	 * @return int|null
+	 */
+	public function getMaxAvailableImgWidth( $includeOriginal = false ) {
+		$img = $this->getMaxAvailableImg( $includeOriginal );
+
+		return $img ? $img['width'] : null;
+	}
+
+	/**
+	 * @param bool $includeOriginal
+	 *
+	 * @return int|null
+	 */
+	public function getMaxAvailableImgHeight( $includeOriginal = false ) {
+		$img = $this->getMaxAvailableImg( $includeOriginal );
+
+		return $img ? $img['height'] : null;
+	}
+
+	/**
 	 * Получить ссылку по нику
 	 *
 	 * @param null|string $nick
