@@ -530,7 +530,7 @@ class Api {
 		}
 
 		/** @var Album[] $albumsArray */
-		$albumsArray = $this->getAlbumsCollection()->setLimit( AlbumsCollection::MAX_LIMIT )->loadAll()->getList();
+		$albumsArray = $this->getAlbumsCollection()->setLimit(AlbumsCollection::MAX_LIMIT)->loadAll(PHP_INT_MAX)->getList();
 		$tree        = array();
 		$rootIds     = array();
 
