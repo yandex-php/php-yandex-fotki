@@ -133,8 +133,9 @@ class Transport implements \Serializable {
 		$data = curl_exec( $curl );
 		$code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 		if ( curl_errno( $curl ) ) {
-			curl_close( $curl );
-			throw new Exception\CurlError( curl_error( $curl ) );
+            $curl_error = curl_error($curl);
+            curl_close($curl);
+            throw new Exception\CurlError($curl_error);
 		}
 		curl_close( $curl );
 
