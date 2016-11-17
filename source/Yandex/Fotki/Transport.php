@@ -107,7 +107,12 @@ class Transport implements \Serializable {
 
 		return $this;
 	}
-
+	
+	public function get( $url, array $params = null )     { return $this->request(self::METHOD_GET, $url, $params); }
+	public function post( $url, array $params = null )    { return $this->request(self::METHOD_POST, $url, $params); }
+	public function put( $url, array $params = null )     { return $this->request(self::METHOD_PUT, $url, $params); }
+	public function delete( $url, array $params = null )  { return $this->request(self::METHOD_DELETE, $url, $params); }
+ 
 	public function request( $method, $url, array $params = null ) {
 		$curl = curl_init( $url );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
