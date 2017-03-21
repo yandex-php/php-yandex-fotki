@@ -111,6 +111,7 @@ class Transport implements \Serializable {
 	public function request( $method, $url, array $params = null ) {
 		$curl = curl_init( $url );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt($curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		$headers   = array();
 		$headers[] = 'Accept: application/json';
 		switch ( $method ) {
