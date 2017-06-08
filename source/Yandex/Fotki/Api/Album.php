@@ -5,6 +5,7 @@ use Yandex\Fotki\Exception\InvalidCall;
 
 /**
  * Class AlbumsCollection
+ *
  * @package Yandex\Fotki\Api
  * @author  Dmitry Kuznetsov <kuznetsov2d@gmail.com>
  * @license The MIT License (MIT)
@@ -432,12 +433,13 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 		return $this;
 	}
 
-	/**
-	 * @param Album|int|string|null $albumId Альбом, который ищем, либо его ID.
-	 *                                       Null в качестве заглушки
-	 *
-	 * @throws \Yandex\Fotki\Exception\Api\Album
-	 */
+    /**
+     * @param Album|int|string|null $albumId Альбом, который ищем, либо его ID.
+     *                                       Null в качестве заглушки
+     *
+     * @return mixed
+     * @throws \Yandex\Fotki\Exception\Api\Album
+     */
 	public function contains( $albumId ) {
 		if ( is_null( $albumId ) ) {
 			return false;
@@ -725,13 +727,15 @@ class Album extends \Yandex\Fotki\Api\CollectionAbstract {
 
 	/**
 	 * Загружаем список фотографий
-	 * @throws \Yandex\Fotki\Exception\Api\PhotosCollection
+     *
+     * @throws \Yandex\Fotki\Exception\Api\PhotosCollection
 	 * @return self
 	 */
 	protected function _loadPhotos() {
 		if ( ! empty( $this->_apiUrlPhotos ) ) {
 			try {
 				$this->_loadCollectionData( $this->_apiUrlPhotos );
+                $this->_apiUrlPhotos = $this->_apiUrlNextPage;
 				foreach ( $this->_entries as $entry ) {
 					$photo = new \Yandex\Fotki\Api\Photo( $this->_transport );
 					$photo->initWithData( $entry )
