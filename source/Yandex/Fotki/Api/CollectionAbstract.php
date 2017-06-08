@@ -47,7 +47,6 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
     protected $_dateUpdated;
     /**
      * @var string Порядок элементов отображения выдачи
-     * @see \Yandex\Fotki\Dict\Order
      */
     protected $_order;
     /**
@@ -70,7 +69,6 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
     /**
      * @param \Yandex\Fotki\Transport $transport
      * @param string $apiUrl
-     * @return self
      */
     public function __construct(\Yandex\Fotki\Transport $transport, $apiUrl)
     {
@@ -106,8 +104,6 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
     public function loadAll($limitQueries = null)
     {
         $limitQueries = is_null($limitQueries) ? 20 : $limitQueries;
-        $albums[] = $this
-            ->load();
         for ($i = 0; $i < $limitQueries; $i++) {
             try {
                 $this->loadNext();
@@ -142,7 +138,7 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
         $result = $this->_data;
         $limit = (int)$this->_limit;
         if ($limit > 0) {
-            $result = array_slice($result, 0, $limit);
+	        $result = array_slice( $result, 0, $limit, true );
         }
         return $result;
     }
@@ -211,6 +207,8 @@ abstract class CollectionAbstract extends \Yandex\Fotki\ApiAbstract
             $data = $this->_getData($this->_transport, $this->_getApiUrlWithParams($apiUrl));
             if (isset($data['links']['next'])) {
                 $this->_apiUrlNextPage = (string)$data['links']['next'];
+            } else {
+                $this->_apiUrlNextPage = null;
             }
             if (isset($data['updated'])) {
                 $this->_dateUpdated = (string)$data['updated'];
